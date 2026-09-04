@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Blissroot Ayurveda - Premium Ayurvedic wellness products. 100% Natural, Lab Tested Chyawanprash, Amla Murabba, Herbal Lip Balm and more.">
+  <title>Blissroot Ayurveda – Rooted in Ayurveda. Made for Modern Living.</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Announcement Bar -->
+<div class="announcement-bar">
+  🌿 Free Shipping on orders above <span>₹499</span> | Use code <span>AYUR10</span> for 10% off
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container">
+    <a href="/" class="logo">
+      <img src="/images/logo.jpg" alt="Blissroot Ayurveda" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+      Blissroot Ayurveda
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="#products">Products</a>
+      <a href="blog.html">Blog</a>
+      <a href="order-tracking.html">Track Order</a>
+    </div>
+    <div class="nav-actions">
+      <a href="cart.html" class="nav-btn">🛒<span class="cart-count" id="cartCount">0</span></a>
+      <button class="hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open');this.classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-pattern"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">🌿 100% Natural & Lab Tested</div>
+      <h1>Rooted in <span class="accent">Ayurveda.</span><br>Made for Modern Living.</h1>
+      <p class="hero-sub">Discover our range of pure, traditionally crafted Ayurvedic products — from immunity-boosting Chyawanprash to nourishing Herbal Lip Balms.</p>
+      <div class="hero-features">
+        <div class="hero-feature"><span class="check">✓</span> FSSAI Certified</div>
+        <div class="hero-feature"><span class="check">✓</span> Lab Tested</div>
+        <div class="hero-feature"><span class="check">✓</span> No Chemicals</div>
+      </div>
+      <div class="hero-btns">
+        <a href="#products" class="btn-primary">Shop Now →</a>
+        <a href="blog.html" class="btn-outline">Learn Ayurveda</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-img-wrap">
+        <img class="hero-img-main" src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&q=80" alt="Ayurvedic Products">
+        <div class="hero-float"><div class="num">40+</div><div class="label">Natural Herbs</div></div>
+        <div class="hero-float"><div class="num">10K+</div><div class="label">Happy Customers</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">✦ Categories</div>
+      <h2 class="section-title">Shop by Category</h2>
+      <p class="section-desc">Explore our range of traditional Ayurvedic products</p>
+    </div>
+    <div class="categories-grid">
+      <a href="chyawanprash.html" class="category-card">
+        <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&q=80" alt="Immunity Boosters">
+        <div class="category-overlay"><h3>Immunity Boosters</h3><p>Chyawanprash & more</p></div>
+        <div class="category-arrow">→</div>
+      </a>
+      <a href="amla-murabba.html" class="category-card">
+        <img src="https://images.unsplash.com/photo-1577003811926-53b288a6e5d0?w=600&q=80" alt="Traditional Preserves">
+        <div class="category-overlay"><h3>Traditional Preserves</h3><p>Amla Murabba & more</p></div>
+        <div class="category-arrow">→</div>
+      </a>
+      <a href="herbal-lip-balm.html" class="category-card">
+        <img src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&q=80" alt="Natural Skincare">
+        <div class="category-overlay"><h3>Natural Skincare</h3><p>Herbal Lip Balm & more</p></div>
+        <div class="category-arrow">→</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Products -->
+<section class="section" id="products" style="background: var(--white);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">✦ Our Products</div>
+      <h2 class="section-title">Bestsellers</h2>
+      <p class="section-desc">Handpicked Ayurvedic essentials loved by thousands</p>
+    </div>
+    <div class="products-grid" id="productsGrid">
+      <!-- Products loaded dynamically via JS -->
+    </div>
+  </div>
+</section>
+
+<!-- Trust Section -->
+<section class="section trust-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">✦ Why Choose Us</div>
+      <h2 class="section-title">The Blissroot Promise</h2>
+    </div>
+    <div class="trust-grid">
+      <div class="trust-item"><div class="trust-icon">🌿</div><h4>100% Natural</h4><p>No chemicals or preservatives</p></div>
+      <div class="trust-item"><div class="trust-icon">🔬</div><h4>Lab Tested</h4><p>Every batch verified</p></div>
+      <div class="trust-item"><div class="trust-icon">📋</div><h4>FSSAI Certified</h4><p>Government approved</p></div>
+      <div class="trust-item"><div class="trust-icon">🚚</div><h4>Free Shipping</h4><p>On orders above ₹499</p></div>
+      <div class="trust-item"><div class="trust-icon">↩️</div><h4>Easy Returns</h4><p>7-day return policy</p></div>
+      <div class="trust-item"><div class="trust-icon">💬</div><h4>Expert Support</h4><p>Ayurveda consultations</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Promo Banner -->
+<section class="section">
+  <div class="promo-banner">
+    <div class="promo-content">
+      <h2>Family Wellness Bundle</h2>
+      <p>Get Chyawanprash + Amla Murabba at a special price. Boost your family's immunity this season!</p>
+      <div class="promo-code">Use Code: <span>FAMILY20</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Bundles -->
+<section class="section" style="background: var(--white);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">✦ Value Packs</div>
+      <h2 class="section-title">Smart Bundles</h2>
+      <p class="section-desc">Save more when you buy together</p>
+    </div>
+    <div class="bundles-grid">
+      <div class="bundle-card">
+        <div class="bundle-imgs">
+          <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=200&q=80" alt="Chyawanprash">
+          <img src="https://images.unsplash.com/photo-1577003811926-53b288a6e5d0?w=200&q=80" alt="Amla Murabba">
+        </div>
+        <div class="bundle-info">
+          <h3>Immunity Duo</h3>
+          <p>Chyawanprash + Amla Murabba</p>
+          <div class="bundle-price">
+            <span class="current">₹599</span>
+            <span class="original">₹698</span>
+            <span class="save">Save 14%</span>
+          </div>
+        </div>
+      </div>
+      <div class="bundle-card">
+        <div class="bundle-imgs">
+          <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=200&q=80" alt="Chyawanprash">
+          <img src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=200&q=80" alt="Lip Balm">
+        </div>
+        <div class="bundle-info">
+          <h3>Wellness Essentials</h3>
+          <p>Chyawanprash + Herbal Lip Balm</p>
+          <div class="bundle-price">
+            <span class="current">₹499</span>
+            <span class="original">₹548</span>
+            <span class="save">Save 9%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">✦ Reviews</div>
+      <h2 class="section-title">What Our Customers Say</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p>The Chyawanprash is incredible — my whole family takes it daily. Best we've tried so far. 100% recommend Blissroot!</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AK</div>
+          <div><h4>Anjali Kapoor</h4><span>Delhi</span></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p>I love the Amla Murabba! Tastes amazing and I can feel the difference in my energy levels. Will order again!</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">RS</div>
+          <div><h4>Rahul Sharma</h4><span>Mumbai</span></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p>The herbal lip balm is my go-to now. No chemicals, just natural goodness. My lips have never felt better!</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">PM</div>
+          <div><h4>Priya Mehta</h4><span>Bangalore</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Blog Preview -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">✦ From Our Blog</div>
+      <h2 class="section-title">Learn Ayurveda</h2>
+      <p class="section-desc">Ancient wisdom for modern wellness</p>
+    </div>
+    <div class="blog-grid">
+      <a href="blog.html" class="blog-card">
+        <div class="blog-img"><img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500&q=80" alt="Chyawanprash Benefits"></div>
+        <div class="blog-body">
+          <div class="blog-tag">Immunity</div>
+          <h3>5 Reasons to Include Chyawanprash in Your Daily Routine</h3>
+          <p>Discover why this ancient Ayurvedic formulation remains one of the most effective immunity boosters...</p>
+          <span class="read-more">Read More →</span>
+        </div>
+      </a>
+      <a href="blog.html" class="blog-card">
+        <div class="blog-img"><img src="https://images.unsplash.com/photo-1577003811926-53b288a6e5d0?w=500&q=80" alt="Amla Benefits"></div>
+        <div class="blog-body">
+          <div class="blog-tag">Nutrition</div>
+          <h3>Amla: The Indian Superfruit You Need to Know About</h3>
+          <p>Indian gooseberry (Amla) is packed with Vitamin C and antioxidants that boost your overall health...</p>
+          <span class="read-more">Read More →</span>
+        </div>
+      </a>
+      <a href="blog.html" class="blog-card">
+        <div class="blog-img"><img src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&q=80" alt="Natural Lip Care"></div>
+        <div class="blog-body">
+          <div class="blog-tag">Skincare</div>
+          <h3>Why You Should Switch to Natural Lip Care Today</h3>
+          <p>Commercial lip balms are full of chemicals. Here's why herbal alternatives are better for your lips...</p>
+          <span class="read-more">Read More →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Customers Banner -->
+<section class="section">
+  <div class="customers-banner">
+    <h3>Trusted by 10,000+ Happy Customers</h3>
+    <p>Join the growing Blissroot family and experience the power of Ayurveda</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <img src="/images/logo.jpg" alt="Blissroot Ayurveda" style="width:40px;height:40px;border-radius:50%;object-fit:cover;filter:brightness(10);">
+          Blissroot Ayurveda
+        </div>
+        <p>Bringing the ancient wisdom of Ayurveda to your doorstep. All our products are 100% natural, lab tested and FSSAI certified.</p>
+        <div class="footer-social">
+          <a href="#">📷</a>
+          <a href="#">📘</a>
+          <a href="#">🐦</a>
+          <a href="#">▶️</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <a href="/">Home</a>
+        <a href="#products">Products</a>
+        <a href="blog.html">Blog</a>
+        <a href="order-tracking.html">Track Order</a>
+      </div>
+      <div class="footer-col">
+        <h4>Products</h4>
+        <a href="chyawanprash.html">Chyawanprash</a>
+        <a href="amla-murabba.html">Amla Murabba</a>
+        <a href="herbal-lip-balm.html">Herbal Lip Balm</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="#">Contact Us</a>
+        <a href="#">Shipping Policy</a>
+        <a href="#">Return Policy</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Blissroot Ayurveda. All rights reserved. FSSAI Lic: 12345678901234</span>
+      <div class="payment-icons">
+        <span class="payment-icon">UPI</span>
+        <span class="payment-icon">VISA</span>
+        <span class="payment-icon">MC</span>
+        <span class="payment-icon">COD</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/919999999999" class="whatsapp-float" target="_blank">💬</a>
+
+<script src="main.js" type="module"></script>
+</body>
+</html>

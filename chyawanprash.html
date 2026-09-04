@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blissroot Chyawanprash – Ayurvedic Immunity Booster</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="announcement-bar">Free Shipping on orders above ₹500!</div>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <img src="/images/logo.jpg" alt="Blissroot Ayurveda" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"> Blissroot Ayurveda
+        </a>
+        <div class="hamburger">☰</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="cart.html" class="cart-icon">🛒<span class="cart-count">0</span></a>
+        </div>
+    </nav>
+
+    <div class="product-page">
+        <div class="container">
+            <div class="product-gallery">
+                <div class="gallery-main">
+                    <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&q=80" alt="Blissroot Chyawanprash">
+                </div>
+            </div>
+            <div class="product-details">
+                <div class="product-meta">Immunity Booster</div>
+                <h1>Blissroot Chyawanprash</h1>
+                <div class="product-meta-row">
+                    <div class="stars">★★★★★ 4.8 (2,456 reviews)</div>
+                    <div class="stock-indicator">Only 12 left</div>
+                </div>
+                <div class="product-price-big">
+                    <span class="price-current">₹399</span>
+                    <span class="price-original">₹499</span>
+                    <span class="price-discount">20% off</span>
+                </div>
+                <div class="product-actions">
+                    <div class="qty-selector">
+                        <button class="qty-btn minus">-</button>
+                        <input type="number" value="1" min="1" class="qty-input">
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                    <button class="btn-add-cart" onclick="addToCart('chyawanprash', 'Blissroot Chyawanprash', 399)">Add to Cart</button>
+                    <button class="btn-buy-now">Buy Now</button>
+                </div>
+                <div class="lab-cert">
+                    <div class="cert-badge">FSSAI Certified & Lab Tested</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="product-tabs">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-target="desc">Description</button>
+                    <button class="tab-btn" data-target="ingredients">Ingredients</button>
+                    <button class="tab-btn" data-target="faq">FAQ</button>
+                </div>
+                <div class="tab-content active" id="desc">
+                    <p>100% Natural Ayurvedic immunity booster with 40+ herbs including Amla, Ashwagandha, Pippali, Giloy, and more. Made using traditional methods.</p>
+                </div>
+                <div class="tab-content" id="ingredients">
+                    <p>Amla, Sugar, Ghee, Honey, Ashwagandha, Shatavari, Pippali, Giloy, Brahmi, Cardamom, and 30+ Ayurvedic herbs.</p>
+                </div>
+                <div class="tab-content" id="faq">
+                    <div class="faq-item">
+                        <div class="faq-q">Is it safe for children?</div>
+                        <div class="faq-a">Yes, suitable for ages 5+</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-q">Is it FSSAI certified?</div>
+                        <div class="faq-a">Yes, all Blissroot products are FSSAI certified and lab tested</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-q">How should I take it?</div>
+                        <div class="faq-a">1-2 teaspoons daily with warm milk</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Blissroot Ayurveda. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div class="whatsapp-float">
+        <a href="#">WhatsApp Us</a>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.target).classList.add('active');
+            });
+        });
+
+        // FAQ toggle
+        document.querySelectorAll('.faq-q').forEach(q => {
+            q.addEventListener('click', () => {
+                q.parentElement.classList.toggle('open');
+            });
+        });
+
+        // Qty selector
+        const qtyMinus = document.querySelector('.qty-btn.minus');
+        const qtyPlus = document.querySelector('.qty-btn.plus');
+        const qtyInput = document.querySelector('.qty-input');
+        
+        if(qtyMinus && qtyPlus && qtyInput) {
+            qtyMinus.addEventListener('click', () => {
+                let val = parseInt(qtyInput.value);
+                if (val > 1) qtyInput.value = val - 1;
+            });
+            qtyPlus.addEventListener('click', () => {
+                let val = parseInt(qtyInput.value);
+                qtyInput.value = val + 1;
+            });
+        }
+
+        // Hamburger menu
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        if(hamburger && navLinks) {
+            hamburger.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        }
+    </script>
+</body>
+</html>

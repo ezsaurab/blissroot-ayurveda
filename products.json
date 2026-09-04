@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Blissroot Chyawanprash",
+    "description": "100% Natural Ayurvedic immunity booster with 40+ herbs.",
+    "price": 399,
+    "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80"
+  },
+  {
+    "id": 2,
+    "name": "Blissroot Amla Murabba",
+    "description": "Traditional Indian gooseberry preserve. Rich in Vitamin C.",
+    "price": 299,
+    "image": "https://images.unsplash.com/photo-1577003811926-53b288a6e5d0?w=500&q=80"
+  },
+  {
+    "id": 3,
+    "name": "Blissroot Herbal Lip Balm",
+    "description": "100% natural lip care with beeswax, coconut oil & rose.",
+    "price": 149,
+    "image": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&q=80"
+  }
+]

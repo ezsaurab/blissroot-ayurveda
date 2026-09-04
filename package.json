@@ -1,0 +1,24 @@
+{
+  "name": "bliss-root-ayurveda",
+  "version": "1.0.0",
+  "description": "Blissroot Ayurveda - Premium Ayurvedic E-commerce",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev:backend": "node server.js",
+    "dev:frontend": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.2",
+    "jsonwebtoken": "^9.0.3",
+    "razorpay": "^2.9.8"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
