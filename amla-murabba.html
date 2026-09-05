@@ -4,25 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blissroot Amla Murabba – Natural Vitamin C Superfood</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="announcement-bar">Free Shipping on orders above ₹500!</div>
+    <div class="announcement-bar">Free shipping on orders over ₹499!</div>
     <nav class="navbar">
-        <a href="index.html" class="logo">
-            <img src="/images/logo.jpg" alt="Blissroot Ayurveda" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"> Blissroot Ayurveda
-        </a>
-        <div class="hamburger">☰</div>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="nav-actions">
-            <a href="cart.html" class="cart-icon">🛒<span class="cart-count">0</span></a>
-        </div>
-    </nav>
+  <div class="container">
+    <a href="/" class="logo">
+      <img src="/images/logo.jpg" alt="Blissroot Ayurveda" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+      Blissroot Ayurveda
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="index.html#products">Products</a>
+      <a href="blog.html">Blog</a>
+      <a href="order-tracking.html">Track Order</a>
+    </div>
+    <div class="nav-actions">
+      <a href="cart.html" class="nav-btn">🛒<span class="cart-count" id="cartCount">0</span></a>
+      <button class="hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open');this.classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
 
     <div class="product-page">
         <div class="container">
@@ -50,7 +55,7 @@
                         <button class="qty-btn plus">+</button>
                     </div>
                     <button class="btn-add-cart" onclick="addToCart('amla-murabba', 'Blissroot Amla Murabba', 299)">Add to Cart</button>
-                    <button class="btn-buy-now">Buy Now</button>
+                    <button class="btn-buy-now" onclick="addToCart({id:2,name:'Blissroot Amla Murabba',price:299,image:'https://images.unsplash.com/photo-1577003811926-53b288a6e5d0?w=500&q=80'}); window.location.href='cart.html'">Buy Now</button>
                 </div>
                 <div class="lab-cert">
                     <div class="cert-badge">FSSAI Certified & Lab Tested</div>
@@ -99,7 +104,7 @@
         <a href="#">WhatsApp Us</a>
     </div>
 
-    <script src="main.js"></script>
+    
     <script>
         // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -143,5 +148,6 @@
             });
         }
     </script>
+<script src="/main.js"></script>
 </body>
 </html>

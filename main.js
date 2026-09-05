@@ -57,6 +57,60 @@ authStyles.textContent = `
 .auth-close:hover { color: #333; }
 .auth-error { color: #dc3545; font-size: 0.85rem; margin-bottom: 15px; text-align: center; display: none; }
 .auth-success { color: #28a745; font-size: 0.85rem; margin-bottom: 15px; text-align: center; display: none; }
+
+/* --- Nav Auth Button Styles --- */
+.nav-auth-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 50px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600; text-decoration: none;
+  transition: all 0.3s ease; white-space: nowrap; border: none;
+}
+.nav-auth-btn.logged-out {
+  background: #C9A84C; color: #fff;
+}
+.nav-auth-btn.logged-out:hover {
+  background: #b8963e; transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(201,168,76,0.4);
+}
+.nav-auth-btn.logged-in {
+  background: rgba(31,61,43,0.08); color: #1F3D2B;
+  padding: 5px 14px 5px 5px;
+}
+.nav-auth-btn.logged-in:hover {
+  background: rgba(31,61,43,0.15);
+}
+.nav-auth-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: #1F3D2B; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px;
+}
+.nav-auth-name { max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
+.nav-auth-logout {
+  font-size: 0.7rem; color: #999; margin-left: 2px;
+}
+.nav-auth-icon {
+  width: 18px; height: 18px; fill: currentColor;
+}
+
+/* --- Toast Notifications --- */
+.toast-container {
+  position: fixed; bottom: 20px; right: 20px; z-index: 99999;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.toast {
+  padding: 14px 20px; border-radius: 10px; color: #fff;
+  font-size: 0.9rem; font-weight: 500; min-width: 260px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  animation: toastIn 0.4s ease;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.toast-out { animation: toastOut 0.3s ease forwards; }
+.toast-success { background: #1F3D2B; }
+.toast-error { background: #C0392B; }
+.toast-info { background: #2980b9; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
 `;
 document.head.appendChild(authStyles);
 
@@ -257,7 +311,6 @@ window.logout = () => {
 };
 
 function updateNavAuth() {
-    // Inject or update the Login/Logout button in the navbar
     const navActions = document.querySelector('.nav-actions');
     if (!navActions) return;
     
@@ -265,10 +318,8 @@ function updateNavAuth() {
     if (!authBtn) {
         authBtn = document.createElement('a');
         authBtn.id = 'navAuthBtn';
-        authBtn.className = 'nav-btn';
         authBtn.href = '#';
         
-        // Insert it right before the hamburger menu or cart
         const cartBtn = navActions.querySelector('a[href="cart.html"]');
         if (cartBtn) {
             navActions.insertBefore(authBtn, cartBtn);
@@ -281,13 +332,18 @@ function updateNavAuth() {
     if (token) {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const firstName = user.name ? user.name.split(' ')[0] : 'User';
-        authBtn.innerHTML = '👤 ' + firstName + ' (Logout)';
+        const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : 'U';
+        authBtn.className = 'nav-auth-btn logged-in';
+        authBtn.innerHTML = '<span class="nav-auth-avatar">' + initials + '</span><span class="nav-auth-name">' + firstName + '</span><span class="nav-auth-logout">✕</span>';
+        authBtn.title = 'Click to logout';
         authBtn.onclick = (e) => {
             e.preventDefault();
             window.logout();
         };
     } else {
-        authBtn.innerHTML = '👤 Login';
+        authBtn.className = 'nav-auth-btn logged-out';
+        authBtn.innerHTML = '<svg class="nav-auth-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Login';
+        authBtn.title = 'Login or Sign Up';
         authBtn.onclick = (e) => {
             e.preventDefault();
             window.openAuthModal();
@@ -352,8 +408,29 @@ function proceedToCart(product) {
   
   saveCart(cart);
   updateCartCount();
-  alert(`${product.name} added to cart!`);
+  showToast('✓ ' + product.name + ' added to cart!', 'success');
 }
+
+// Toast Notification System
+let toastContainer = document.getElementById('toastContainer');
+if (!toastContainer) {
+  toastContainer = document.createElement('div');
+  toastContainer.id = 'toastContainer';
+  toastContainer.className = 'toast-container';
+  document.body.appendChild(toastContainer);
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.textContent = message;
+  toastContainer.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('toast-out');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+window.showToast = showToast;
 
 // Make addToCart globally available
 window.addToCart = addToCart;

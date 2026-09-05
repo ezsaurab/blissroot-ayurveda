@@ -1,0 +1,16 @@
+{
+  "storeName": "Blissroot Ayurveda",
+  "tagline": "Rooted in Ayurveda. Made for Modern Living.",
+  "email": "hello@blissroot.in",
+  "phone": "+91 9999999999",
+  "freeShippingAbove": 499,
+  "shippingFee": 50,
+  "returnWindow": 7,
+  "fssaiLicense": "12345678901234",
+  "announcementBar": "🌿 Free Shipping on orders above ₹499 | Use code AYUR10 for 10% off",
+  "couponCode": "AYUR10",
+  "couponDiscount": 10,
+  "instagram": "https://instagram.com/blissroot",
+  "facebook": "https://facebook.com/blissroot",
+  "whatsapp": "919999999999"
+}
