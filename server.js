@@ -142,3 +142,205 @@ app.post('/api/orders', (req, res) => {
         id: Date.now(),
         orderNumber,
         customerName: req.body.customerName || 'Guest',
+        customerPhone: req.body.customerPhone || '',
+        items: req.body.items || [],
+        subtotal: parseFloat(req.body.subtotal) || 0,
+        shipping: parseFloat(req.body.shipping) || 0,
+        tax: parseFloat(req.body.tax) || 0,
+        total: parseFloat(req.body.total) || 0,
+        paymentId: req.body.paymentId || 'mock',
+        paymentMethod: req.body.paymentMethod || 'razorpay',
+        status: 'Processing',
+        createdAt: new Date().toISOString()
+    };
+    orders.push(newOrder);
+    writeJSON(ORDERS_FILE, orders);
+    res.status(201).json(newOrder);
+});
+
+app.put('/api/orders/:id', verifyAdmin, (req, res) => {
+    const orders = readJSON(ORDERS_FILE);
+    const index = orders.findIndex(o => o.id === parseInt(req.params.id));
+    if (index === -1) return res.status(404).json({ error: 'Order not found' });
+
+    if (req.body.status) orders[index].status = req.body.status;
+    writeJSON(ORDERS_FILE, orders);
+    res.json(orders[index]);
+});
+
+// =========================================
+//  SETTINGS API
+// =========================================
+
+const DEFAULT_SETTINGS = {
+    storeName: 'Blissroot Ayurveda',
+    tagline: 'Rooted in Ayurveda. Made for Modern Living.',
+    email: 'hello@blissroot.in',
+    phone: '+91 9999999999',
+    freeShippingAbove: 499,
+    shippingFee: 50,
+    returnWindow: 7,
+    fssaiLicense: '12345678901234',
+    announcementBar: '🌿 Free Shipping on orders above ₹499 | Use code AYUR10 for 10% off',
+    couponCode: 'AYUR10',
+    couponDiscount: 10,
+    instagram: 'https://instagram.com/blissroot',
+    facebook: 'https://facebook.com/blissroot',
+    whatsapp: '919999999999'
+};
+
+app.get('/api/settings', (req, res) => {
+    const settings = readJSON(SETTINGS_FILE, DEFAULT_SETTINGS);
+    res.json(settings);
+});
+
+app.put('/api/settings', verifyAdmin, (req, res) => {
+    const current = readJSON(SETTINGS_FILE, DEFAULT_SETTINGS);
+    const updated = { ...current, ...req.body };
+    writeJSON(SETTINGS_FILE, updated);
+    res.json(updated);
+});
+
+// =========================================
+//  CUSTOMERS API (read-only for admin)
+// =========================================
+
+app.get('/api/customers', verifyAdmin, (req, res) => {
+    const users = readJSON(USERS_FILE);
+    // Strip passwords before sending
+    const safeUsers = users.map(u => ({
+        id: u.id,
+        name: u.name,
+        phone: u.phone,
+        createdAt: u.createdAt || null
+    }));
+    res.json(safeUsers);
+});
+
+// =========================================
+//  ADMIN AUTH
+// =========================================
+
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: 'Password is required' });
+    if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Incorrect password' });
+
+    const token = jwt.sign({ isAdmin: true, role: 'admin' }, SECRET_KEY, { expiresIn: '12h' });
+    res.json({ message: 'Admin login successful', token });
+});
+
+// =========================================
+//  USER AUTH (OTP-based)
+// =========================================
+
+const otps = {};
+
+app.post('/api/send-otp', (req, res) => {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: 'Phone number is required' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otps[phone] = otp;
+
+    console.log(`\n=========================================`);
+    console.log(`📱 [SMS SIMULATION] OTP for ${phone}`);
+    console.log(`🔑 Your OTP is: ${otp}`);
+    console.log(`=========================================\n`);
+
+    res.json({ message: 'OTP sent successfully', otp });
+});
+
+app.post('/api/signup', (req, res) => {
+    const { name, phone, password, otp } = req.body;
+    if (!name || !phone || !password || !otp) return res.status(400).json({ error: 'All fields including OTP are required' });
+    if (otps[phone] !== otp) return res.status(400).json({ error: 'Invalid or expired OTP' });
+
+    const users = readJSON(USERS_FILE);
+    if (users.find(u => u.phone === phone)) return res.status(400).json({ error: 'Phone number already in use' });
+
+    const hashedPassword = bcrypt.hashSync(password, 8);
+    const newUser = { id: Date.now(), name, phone, password: hashedPassword, createdAt: new Date().toISOString() };
+    users.push(newUser);
+    writeJSON(USERS_FILE, users);
+    delete otps[phone];
+
+    const token = jwt.sign({ id: newUser.id, phone: newUser.phone }, SECRET_KEY, { expiresIn: '24h' });
+    res.json({ message: 'Signup successful', token, user: { name: newUser.name, phone: newUser.phone } });
+});
+
+app.post('/api/login', (req, res) => {
+    const { phone, password, otp } = req.body;
+    if (!phone || !password || !otp) return res.status(400).json({ error: 'Phone, password, and OTP required' });
+    if (otps[phone] !== otp) return res.status(400).json({ error: 'Invalid or expired OTP' });
+
+    const users = readJSON(USERS_FILE);
+    const user = users.find(u => u.phone === phone);
+    if (!user || !bcrypt.compareSync(password, user.password)) return res.status(401).json({ error: 'Invalid credentials' });
+
+    delete otps[phone];
+    const token = jwt.sign({ id: user.id, phone: user.phone }, SECRET_KEY, { expiresIn: '24h' });
+    res.json({ message: 'Login successful', token, user: { name: user.name, phone: user.phone } });
+});
+
+// =========================================
+//  RAZORPAY PAYMENT GATEWAY
+// =========================================
+
+let razorpayInstance = null;
+try {
+    if (RAZORPAY_KEY_ID !== 'rzp_test_YOUR_KEY_HERE') {
+        razorpayInstance = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
+    } else {
+        console.log("⚠️  Razorpay keys not configured — using Mock Payment Mode.");
+    }
+} catch (e) { console.log("Error initializing Razorpay:", e.message); }
+
+app.get('/api/config/razorpay', (req, res) => {
+    res.json({ key_id: RAZORPAY_KEY_ID });
+});
+
+app.post('/api/create-order', async (req, res) => {
+    try {
+        const { amount } = req.body;
+        if (!razorpayInstance || RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_HERE') {
+            return res.json({ id: 'order_mock_' + Date.now(), amount: amount * 100, currency: 'INR', mock: true });
+        }
+        const order = await razorpayInstance.orders.create({ amount: amount * 100, currency: 'INR', receipt: 'receipt_' + Date.now() });
+        res.json(order);
+    } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+app.post('/api/verify-payment', (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, mock } = req.body;
+    if (mock) return res.json({ success: true, message: 'Mock Payment verified successfully' });
+
+    const sign = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSign = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET).update(sign).digest("hex");
+    if (razorpay_signature === expectedSign) return res.json({ success: true, message: 'Payment verified successfully' });
+    else return res.status(400).json({ success: false, message: 'Invalid signature' });
+});
+
+// =========================================
+//  PRODUCTION: Serve Frontend Static Files
+// =========================================
+
+const distPath = path.join(__dirname, 'dist');
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+        if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API route not found' });
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+}
+
+// =========================================
+//  START SERVER
+// =========================================
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`\n🌿 Blissroot Ayurveda Server running on port ${PORT}`);
+    console.log(`   API: http://localhost:${PORT}/api/products`);
+    console.log(`   Admin Password: ${ADMIN_PASSWORD}\n`);
+});
