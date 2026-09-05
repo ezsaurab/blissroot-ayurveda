@@ -18,7 +18,3 @@
     "jsonwebtoken": "^9.0.3",
     "razorpay": "^2.9.8"
   },
-  "devDependencies": {
-    "vite": "^6.0.0"
-  }
-}

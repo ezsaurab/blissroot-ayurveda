@@ -6,6 +6,14 @@
     <title>Track Order - Blissroot Ayurveda</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <link rel="canonical" href="https://www.blissrootayurveda.com/order-tracking.html">
+  <meta property="og:site_name" content="Blissroot Ayurveda">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.blissrootayurveda.com/order-tracking.html">
+  <meta property="og:image" content="https://www.blissrootayurveda.com/images/logo.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="keywords" content="Ayurveda, Ayurvedic products, natural wellness, herbal, Blissroot">
 </head>
 <body>
     <div class="announcement-bar">Free shipping on orders over ₹499!</div>
@@ -131,19 +139,4 @@
                 navLinks.style.padding = '20px';
                 navLinks.style.boxShadow = '0 5px 10px rgba(0,0,0,0.1)';
                 navLinks.style.zIndex = '10';
-            }
-        });
-
-        // Initialize Cart count
-        function updateCartCount() {
-            const cartStr = localStorage.getItem('blissroot_cart');
-            const cart = cartStr ? JSON.parse(cartStr) : [];
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const countElem = document.querySelector('.cart-count');
-            if (countElem) countElem.textContent = count;
-        }
-        updateCartCount();
-    </script>
-<script type="module" src="/main.js"></script>
-</body>
-</html>
+          
