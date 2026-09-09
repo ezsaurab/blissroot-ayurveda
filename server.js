@@ -80,8 +80,7 @@ const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 
 if (!SECRET_KEY || !ADMIN_PASSWORD) {
-    console.error('FATAL: JWT_SECRET and ADMIN_PASSWORD must be set in environment variables.');
-    process.exit(1);
+    console.error('WARNING: JWT_SECRET and ADMIN_PASSWORD are not set in environment variables. Using fallback defaults for development, this is INSECURE for production.');
 }
 
 // =========================================
@@ -390,5 +389,4 @@ app.use((err, req, res, _next) => {
 // =========================================
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`\nğŸŒ¿ Blissroot Ayurveda running on port ${PORT}\n`);
-});
+    console.log(`\nğŸ

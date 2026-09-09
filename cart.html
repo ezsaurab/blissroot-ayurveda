@@ -203,21 +203,46 @@
                 subtotal += itemTotal;
                 
                 const cartItemHtml = `
-                    <div class="cart-item">
-                        <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}">
-                        <div class="cart-item-info">
-                            <h3>${item.name}</h3>
-                            <div class="price">₹${item.price}</div>
+                    <div class="cart-item" style="display: flex; align-items: center; border-bottom: 1px solid #eaeaea; padding: 20px 0; gap: 20px; flex-wrap: wrap;">
+                        <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <div class="cart-item-info" style="flex: 1; min-width: 150px;">
+                            <h3 style="margin: 0 0 8px 0; font-size: 1.2em; color: #1F3D2B; font-weight: 600;">${item.name}</h3>
+                            <div class="price" style="font-weight: 500; color: #7f8c8d; font-size: 1.1em;">₹${item.price}</div>
                         </div>
-                        <div class="qty-selector">
-                            <button onclick="changeQty(${index}, -1)">-</button>
-                            <input type="text" value="${qty}" readonly>
-                            <button onclick="changeQty(${index}, 1)">+</button>
+                        <div class="qty-selector" style="display: flex; align-items: center; border: 1px solid #dcdde1; border-radius: 6px; overflow: hidden; background: #fff;">
+                            <button class="btn-qty-minus" data-index="${index}" style="background: #f5f6fa; border: none; padding: 10px 15px; cursor: pointer; font-size: 1.2em; color: #2f3640; transition: background 0.2s;">-</button>
+                            <input type="text" value="${qty}" readonly style="width: 45px; text-align: center; border: none; font-size: 1.1em; background: #fff; color: #2f3640; font-weight: bold;">
+                            <button class="btn-qty-plus" data-index="${index}" style="background: #f5f6fa; border: none; border-left: 1px solid #dcdde1; border-right: 1px solid #dcdde1; border: none; padding: 10px 15px; cursor: pointer; font-size: 1.2em; color: #2f3640; transition: background 0.2s;">+</button>
                         </div>
-                        <button class="cart-item-remove" onclick="removeItem(${index})"><i class="fas fa-trash"></i></button>
+                        <div style="font-weight: 700; font-size: 1.2em; color: #1F3D2B; width: 100px; text-align: right;">₹${itemTotal}</div>
+                        <button class="cart-item-remove btn-remove" data-index="${index}" style="background: #ff767522; border: none; color: #d63031; cursor: pointer; font-size: 1.2em; padding: 12px; border-radius: 8px; transition: all 0.2s; margin-left: 10px;" onmouseover="this.style.background='#ff767544'" onmouseout="this.style.background='#ff767522'"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
                 cartItemsContainer.insertAdjacentHTML('beforeend', cartItemHtml);
+            });
+
+            // Attach event listeners for buttons dynamically
+            document.querySelectorAll('.btn-qty-minus').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    window.changeQty(index, -1);
+                });
+            });
+
+            document.querySelectorAll('.btn-qty-plus').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    window.changeQty(index, 1);
+                });
+            });
+
+            document.querySelectorAll('.btn-remove').forEach(btn => {
+                // If the user clicks the <i> icon inside the button, e.target is the <i> element, so we need to get the closest button
+                btn.addEventListener('click', (e) => {
+                    const button = e.target.closest('.btn-remove');
+                    const index = parseInt(button.getAttribute('data-index'));
+                    window.removeItem(index);
+                });
             });
 
             // Update Summary
