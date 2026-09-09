@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,21 +13,91 @@ import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-// ===== CONFIG =====
-const SECRET_KEY = process.env.JWT_SECRET || 'blissroot_ayurveda_secret_key';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'blissroot2026';
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_YOUR_KEY_HERE';
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'YOUR_SECRET_HERE';
+// =========================================
+//  SECURITY HEADERS (Helmet)
+// =========================================
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://cdnjs.cloudflare.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"],
+            frameSrc: ["https://api.razorpay.com"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: []
+        }
+    },
+    crossOriginEmbedderPolicy: false
+}));
 
-// ===== FILE HELPERS =====
+// =========================================
+//  CORS
+// =========================================
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
+app.use(cors({
+    origin: ALLOWED_ORIGIN,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json({ limit: '50kb' }));
+
+// =========================================
+//  RATE LIMITING
+// =========================================
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, max: 100,
+    standardHeaders: true, legacyHeaders: false,
+    message: { error: 'Too many requests. Please try again later.' }
+});
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, max: 10,
+    standardHeaders: true, legacyHeaders: false,
+    message: { error: 'Too many login attempts. Please try again in 15 minutes.' }
+});
+const otpLimiter = rateLimit({
+    windowMs: 60 * 1000, max: 3,
+    message: { error: 'Too many OTP requests. Please wait before trying again.' }
+});
+
+app.use('/api/', apiLimiter);
+app.use('/api/admin/login', authLimiter);
+app.use('/api/login', authLimiter);
+app.use('/api/signup', authLimiter);
+app.use('/api/send-otp', otpLimiter);
+
+// =========================================
+//  CONFIG — All secrets from environment
+// =========================================
+const SECRET_KEY = process.env.JWT_SECRET;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+
+if (!SECRET_KEY || !ADMIN_PASSWORD) {
+    console.error('FATAL: JWT_SECRET and ADMIN_PASSWORD must be set in environment variables.');
+    process.exit(1);
+}
+
+// =========================================
+//  INPUT SANITIZER — strips HTML to prevent XSS
+// =========================================
+function sanitize(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/[<>"'`]/g, '').trim();
+}
+
+// =========================================
+//  FILE HELPERS
+// =========================================
 const PRODUCTS_FILE = path.join(__dirname, 'products.json');
-const USERS_FILE = path.join(__dirname, 'users.json');
-const ORDERS_FILE = path.join(__dirname, 'orders.json');
+const USERS_FILE    = path.join(__dirname, 'users.json');
+const ORDERS_FILE   = path.join(__dirname, 'orders.json');
 const SETTINGS_FILE = path.join(__dirname, 'settings.json');
 
 function readJSON(filePath, fallback = []) {
@@ -34,71 +106,59 @@ function readJSON(filePath, fallback = []) {
             fs.writeFileSync(filePath, JSON.stringify(fallback, null, 2));
             return fallback;
         }
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch {
-        return fallback;
-    }
+        return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch { return fallback; }
 }
 
 function writeJSON(filePath, data) {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
-// ===== AUTH MIDDLEWARE =====
+// =========================================
+//  AUTH MIDDLEWARE
+// =========================================
 function verifyToken(req, res, next) {
     const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: 'No token provided' });
-    const token = authHeader.split(' ')[1];
-    try {
-        req.user = jwt.verify(token, SECRET_KEY);
-        next();
-    } catch {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-    }
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'No token provided' });
+    try { req.user = jwt.verify(authHeader.split(' ')[1], SECRET_KEY); next(); }
+    catch { return res.status(401).json({ error: 'Invalid or expired token' }); }
 }
 
 function verifyAdmin(req, res, next) {
     const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: 'No token provided' });
-    const token = authHeader.split(' ')[1];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'No token provided' });
     try {
-        const decoded = jwt.verify(token, SECRET_KEY);
+        const decoded = jwt.verify(authHeader.split(' ')[1], SECRET_KEY);
         if (!decoded.isAdmin) return res.status(403).json({ error: 'Admin access required' });
-        req.user = decoded;
-        next();
-    } catch {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-    }
+        req.user = decoded; next();
+    } catch { return res.status(401).json({ error: 'Invalid or expired token' }); }
 }
 
 // =========================================
-// PRODUCTS API
+//  PRODUCTS API
 // =========================================
-app.get('/api/products', (req, res) => {
-    res.json(readJSON(PRODUCTS_FILE));
-});
+app.get('/api/products', (req, res) => res.json(readJSON(PRODUCTS_FILE)));
 
 app.get('/api/products/:id', (req, res) => {
-    const products = readJSON(PRODUCTS_FILE);
-    const product = products.find(p => p.id === parseInt(req.params.id, 10));
-    if (product) res.json(product);
-    else res.status(404).json({ error: 'Product not found' });
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid product ID' });
+    const product = readJSON(PRODUCTS_FILE).find(p => p.id === id);
+    product ? res.json(product) : res.status(404).json({ error: 'Product not found' });
 });
 
 app.post('/api/products', verifyAdmin, (req, res) => {
+    if (!req.body.name || !req.body.price) return res.status(400).json({ error: 'Name and price required' });
     const products = readJSON(PRODUCTS_FILE);
     const newProduct = {
         id: Date.now(),
-        name: req.body.name,
-        description: req.body.description || '',
+        name: sanitize(String(req.body.name)),
+        description: sanitize(String(req.body.description || '')),
         price: parseFloat(req.body.price),
         originalPrice: req.body.originalPrice ? parseFloat(req.body.originalPrice) : null,
-        discount: req.body.discount || null,
-        reviews: req.body.reviews || null,
-        image: req.body.image || '',
-        page: req.body.page || '#',
-        status: req.body.status || 'active',
+        discount: req.body.discount || null, reviews: req.body.reviews || null,
+        image: sanitize(String(req.body.image || '')),
+        page: sanitize(String(req.body.page || '#')),
+        status: req.body.status === 'inactive' ? 'inactive' : 'active',
         createdAt: new Date().toISOString()
     };
     products.push(newProduct);
@@ -107,57 +167,58 @@ app.post('/api/products', verifyAdmin, (req, res) => {
 });
 
 app.put('/api/products/:id', verifyAdmin, (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid product ID' });
     const products = readJSON(PRODUCTS_FILE);
-    const index = products.findIndex(p => p.id === parseInt(req.params.id, 10));
+    const index = products.findIndex(p => p.id === id);
     if (index === -1) return res.status(404).json({ error: 'Product not found' });
-
     products[index] = {
         ...products[index],
-        name: req.body.name ?? products[index].name,
-        description: req.body.description ?? products[index].description,
+        name: req.body.name != null ? sanitize(String(req.body.name)) : products[index].name,
+        description: req.body.description != null ? sanitize(String(req.body.description)) : products[index].description,
         price: req.body.price != null ? parseFloat(req.body.price) : products[index].price,
         originalPrice: req.body.originalPrice != null ? parseFloat(req.body.originalPrice) : products[index].originalPrice,
-        discount: req.body.discount ?? products[index].discount,
-        reviews: req.body.reviews ?? products[index].reviews,
-        image: req.body.image ?? products[index].image,
-        page: req.body.page ?? products[index].page,
-        status: req.body.status ?? products[index].status
+        discount: req.body.discount ?? products[index].discount, reviews: req.body.reviews ?? products[index].reviews,
+        image: req.body.image != null ? sanitize(String(req.body.image)) : products[index].image,
+        page: req.body.page != null ? sanitize(String(req.body.page)) : products[index].page,
+        status: req.body.status === 'inactive' ? 'inactive' : products[index].status
     };
     writeJSON(PRODUCTS_FILE, products);
     res.json(products[index]);
 });
 
 app.delete('/api/products/:id', verifyAdmin, (req, res) => {
-    let products = readJSON(PRODUCTS_FILE);
-    products = products.filter(p => p.id !== parseInt(req.params.id, 10));
-    writeJSON(PRODUCTS_FILE, products);
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid product ID' });
+    writeJSON(PRODUCTS_FILE, readJSON(PRODUCTS_FILE).filter(p => p.id !== id));
     res.status(204).send();
 });
 
 // =========================================
-// ORDERS API
+//  ORDERS API
 // =========================================
 app.get('/api/orders', verifyAdmin, (req, res) => {
-    const orders = readJSON(ORDERS_FILE);
-    res.json(orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+    res.json(readJSON(ORDERS_FILE).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
 });
 
 app.post('/api/orders', (req, res) => {
+    const { customerName, items, total, paymentId } = req.body;
+    if (!customerName || !items || !total || !paymentId) {
+        return res.status(400).json({ error: 'Missing required order fields or paymentId' });
+    }
     const orders = readJSON(ORDERS_FILE);
     const orderNumber = 'BR-' + String(10000 + orders.length + 1);
     const newOrder = {
-        id: Date.now(),
-        orderNumber,
-        customerName: req.body.customerName || 'Guest',
-        phone: req.body.phone || '',
-        email: req.body.email || '',
-        address: req.body.address || '',
-        items: req.body.items || [],
-        total: Number(req.body.total) || 0,
-        paymentId: req.body.paymentId || null,
-        paymentStatus: req.body.paymentStatus || 'pending',
-        status: req.body.status || 'pending',
-        createdAt: new Date().toISOString()
+        id: Date.now(), orderNumber,
+        customerName: sanitize(String(customerName)),
+        phone: sanitize(String(req.body.phone || '')),
+        email: sanitize(String(req.body.email || '')),
+        address: sanitize(String(req.body.address || '')),
+        items: Array.isArray(items) ? items.slice(0, 50) : [],
+        total: Math.min(Number(total), 1000000),
+        paymentId: sanitize(String(paymentId)),
+        paymentStatus: req.body.paymentStatus === 'paid' ? 'paid' : 'pending',
+        status: 'Processing', createdAt: new Date().toISOString()
     };
     orders.push(newOrder);
     writeJSON(ORDERS_FILE, orders);
@@ -165,170 +226,57 @@ app.post('/api/orders', (req, res) => {
 });
 
 app.get('/api/orders/:orderNumber', (req, res) => {
-    const orders = readJSON(ORDERS_FILE);
-    const order = orders.find(o => o.orderNumber === req.params.orderNumber);
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
+    const orderNumber = sanitize(String(req.params.orderNumber));
+    const order = readJSON(ORDERS_FILE).find(o => o.orderNumber === orderNumber);
+    order ? res.json(order) : res.status(404).json({ error: 'Order not found' });
 });
 
 app.put('/api/orders/:id', verifyAdmin, (req, res) => {
     const orders = readJSON(ORDERS_FILE);
     const index = orders.findIndex(o => String(o.id) === String(req.params.id));
     if (index === -1) return res.status(404).json({ error: 'Order not found' });
-    orders[index] = { ...orders[index], ...req.body, id: orders[index].id };
+    if (req.body.status) orders[index].status = sanitize(String(req.body.status));
     writeJSON(ORDERS_FILE, orders);
     res.json(orders[index]);
 });
 
 // =========================================
-// CUSTOMER AUTH API
+//  OTP + AUTH API
 // =========================================
 const otpStore = new Map();
 
 app.post('/api/send-otp', (req, res) => {
-    const phone = String(req.body.phone || '').trim();
-    if (!phone) return res.status(400).json({ error: 'Phone number is required' });
-
+    const phone = String(req.body.phone || '').trim().replace(/\D/g, '');
+    if (!phone || phone.length < 10) return res.status(400).json({ error: 'Valid 10-digit phone required' });
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     otpStore.set(phone, { otp, expiresAt: Date.now() + 5 * 60 * 1000 });
-
-    // Test mode: return the OTP so the existing frontend can display it.
-    res.json({ success: true, otp, message: 'OTP generated successfully' });
+    console.log(`[OTP] ${phone} → ${otp}`);  // server logs only — remove otp from response in production
+    res.json({ success: true, otp, message: 'OTP sent' });
 });
 
 function verifyOTP(phone, otp) {
     const record = otpStore.get(phone);
     if (!record || record.expiresAt < Date.now() || record.otp !== String(otp || '')) return false;
-    otpStore.delete(phone);
-    return true;
+    otpStore.delete(phone); return true;
 }
 
 app.post('/api/signup', async (req, res) => {
-    const name = String(req.body.name || '').trim();
-    const phone = String(req.body.phone || '').trim();
+    const name = sanitize(String(req.body.name || ''));
+    const phone = String(req.body.phone || '').trim().replace(/\D/g, '');
     const password = String(req.body.password || '');
     const otp = String(req.body.otp || '');
-
-    if (!name || !phone || !password || !otp) return res.status(400).json({ error: 'All fields are required' });
+    if (!name || !phone || !password || !otp) return res.status(400).json({ error: 'All fields required' });
+    if (phone.length < 10) return res.status(400).json({ error: 'Invalid phone number' });
+    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
     if (!verifyOTP(phone, otp)) return res.status(400).json({ error: 'Invalid or expired OTP' });
-
     const users = readJSON(USERS_FILE);
-    if (users.some(u => u.phone === phone)) return res.status(409).json({ error: 'An account with this phone already exists' });
-
-    const user = {
-        id: Date.now(),
-        name,
-        phone,
-        password: await bcrypt.hash(password, 8)
-    };
-    users.push(user);
-    writeJSON(USERS_FILE, users);
-
-    const safeUser = { id: user.id, name: user.name, phone: user.phone };
-    const token = jwt.sign({ id: user.id, phone: user.phone, name: user.name }, SECRET_KEY, { expiresIn: '30d' });
-    res.status(201).json({ token, user: safeUser });
+    if (users.some(u => u.phone === phone)) return res.status(409).json({ error: 'Account already exists' });
+    const user = { id: Date.now(), name, phone, password: await bcrypt.hash(password, 12) };
+    users.push(user); writeJSON(USERS_FILE, users);
+    const token = jwt.sign({ id: user.id, phone: user.phone }, SECRET_KEY, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: user.id, name: user.name, phone: user.phone } });
 });
 
 app.post('/api/login', async (req, res) => {
-    const phone = String(req.body.phone || '').trim();
-    const password = String(req.body.password || '');
-    const otp = String(req.body.otp || '');
-    const users = readJSON(USERS_FILE);
-    const user = users.find(u => u.phone === phone);
-
-    if (!user) return res.status(401).json({ error: 'Invalid phone number or password' });
-    const passwordOk = await bcrypt.compare(password, user.password);
-    if (!passwordOk) return res.status(401).json({ error: 'Invalid phone number or password' });
-    if (!verifyOTP(phone, otp)) return res.status(401).json({ error: 'Invalid or expired OTP' });
-
-    const safeUser = { id: user.id, name: user.name, phone: user.phone };
-    const token = jwt.sign({ id: user.id, phone: user.phone, name: user.name }, SECRET_KEY, { expiresIn: '30d' });
-    res.json({ token, user: safeUser });
-});
-
-// =========================================
-// ADMIN AUTH API
-// =========================================
-app.post('/api/admin/login', (req, res) => {
-    const password = String(req.body.password || '');
-    if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid admin password' });
-    const token = jwt.sign({ isAdmin: true, role: 'admin' }, SECRET_KEY, { expiresIn: '24h' });
-    res.json({ token, user: { name: 'Admin', isAdmin: true } });
-});
-
-// =========================================
-// RAZORPAY
-// =========================================
-let razorpay = null;
-if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET && !RAZORPAY_KEY_ID.includes('YOUR_KEY_HERE') && !RAZORPAY_KEY_SECRET.includes('YOUR_SECRET_HERE')) {
-    razorpay = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
-}
-
-app.get('/api/payment/config', (req, res) => {
-    res.json({ keyId: RAZORPAY_KEY_ID });
-});
-
-app.post('/api/create-order', async (req, res) => {
-    try {
-        if (!razorpay) return res.status(503).json({ error: 'Razorpay is not configured yet' });
-        const amount = Math.round(Number(req.body.amount || 0) * 100);
-        if (!amount || amount < 100) return res.status(400).json({ error: 'Minimum amount must be at least ₹1 (100 paise)' });
-        
-        try {
-            const order = await razorpay.orders.create({ amount, currency: 'INR', receipt: 'BR_' + Date.now() });
-            res.json(order);
-        } catch (apiError) {
-            if (apiError.statusCode === 401) {
-                return res.status(401).json({ error: 'Razorpay Authentication Failed' });
-            }
-            throw apiError;
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message || 'Unable to create payment order' });
-    }
-});
-
-app.post('/api/verify-payment', (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-        return res.status(400).json({ success: false, message: 'Missing payment verification fields' });
-    }
-    if (RAZORPAY_KEY_SECRET.includes('YOUR_SECRET_HERE')) {
-        return res.status(400).json({ success: false, error: 'Razorpay Secret Key is missing' });
-    }
-    
-    const expected = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET)
-        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-        .digest('hex');
-        
-    const valid = expected === razorpay_signature;
-    if (valid) {
-        return res.status(200).json({ success: true, message: 'Payment verified successfully' });
-    } else {
-        return res.status(400).json({ success: false, message: 'Invalid signature' });
-    }
-});
-
-// ===== SETTINGS API =====
-app.get('/api/settings', (req, res) => {
-    res.json(readJSON(SETTINGS_FILE, {}));
-});
-
-app.put('/api/settings', verifyAdmin, (req, res) => {
-    const settings = { ...readJSON(SETTINGS_FILE, {}), ...req.body };
-    writeJSON(SETTINGS_FILE, settings);
-    res.json(settings);
-});
-
-// Serve the existing static website. Keep API routes above this middleware.
-app.use(express.static(__dirname, { extensions: ['html'] }));
-
-app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'API route not found' });
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Blissroot Ayurveda server running on port ${PORT}`);
-});
+    const phone = String(req.body.phone || '').trim().replace(/\D/g, '');
+    const
