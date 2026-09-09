@@ -389,4 +389,5 @@ app.use((err, req, res, _next) => {
 // =========================================
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`\nðŸ
+    console.log(`\nBlissroot Blissroot Ayurveda running on port ${PORT}\n`);
+});
