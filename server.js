@@ -240,55 +240,47 @@ app.put('/api/orders/:id', verifyAdmin, (req, res) => {
 });
 
 // =========================================
-//  OTP + AUTH API
+//  OTP SYSTEM (Removed)
 // =========================================
-const otpStore = new Map();
+// OTP logic removed per new Email/Password only requirements
 
-app.post('/api/send-otp', (req, res) => {
-    const phone = String(req.body.phone || '').trim().replace(/\D/g, '');
-    if (!phone || phone.length < 10) return res.status(400).json({ error: 'Valid 10-digit phone required' });
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-    otpStore.set(phone, { otp, expiresAt: Date.now() + 5 * 60 * 1000 });
-    console.log(`[OTP] ${phone} → ${otp}`);  // server logs only — remove otp from response in production
-    res.json({ success: true, otp, message: 'OTP sent' });
-});
-
-function verifyOTP(phone, otp) {
-    const record = otpStore.get(phone);
-    if (!record || record.expiresAt < Date.now() || record.otp !== String(otp || '')) return false;
-    otpStore.delete(phone); return true;
-}
-
+// =========================================
+//  CUSTOMER AUTH (Email / Password)
+// =========================================
 app.post('/api/signup', async (req, res) => {
-    const name = sanitize(String(req.body.name || ''));
-    const phone = String(req.body.phone || '').trim().replace(/\D/g, '');
+    const email = sanitize(String(req.body.email || '')).toLowerCase();
     const password = String(req.body.password || '');
-    const otp = String(req.body.otp || '');
-    if (!name || !phone || !password || !otp) return res.status(400).json({ error: 'All fields required' });
-    if (phone.length < 10) return res.status(400).json({ error: 'Invalid phone number' });
+    
+    if (!email || !password) return res.status(400).json({ error: 'All fields required' });
+    if (!email.includes('@')) return res.status(400).json({ error: 'Invalid email address' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    if (!verifyOTP(phone, otp)) return res.status(400).json({ error: 'Invalid or expired OTP' });
+    
     const users = readJSON(USERS_FILE);
-    if (users.some(u => u.phone === phone)) return res.status(409).json({ error: 'Account already exists' });
-    const user = { id: Date.now(), name, phone, password: await bcrypt.hash(password, 12) };
-    users.push(user); writeJSON(USERS_FILE, users);
-    const token = jwt.sign({ id: user.id, phone: user.phone }, SECRET_KEY, { expiresIn: '7d' });
-    res.status(201).json({ token, user: { id: user.id, name: user.name, phone: user.phone } });
+    if (users.some(u => u.email === email)) return res.status(409).json({ error: 'Account already exists' });
+    
+    const user = { id: Date.now(), email, password: await bcrypt.hash(password, 12) };
+    users.push(user); 
+    writeJSON(USERS_FILE, users);
+    
+    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: user.id, email: user.email } });
 });
 
 app.post('/api/login', async (req, res) => {
-    const phone = String(req.body.phone || '').trim().replace(/\D/g, '');
+    const email = sanitize(String(req.body.email || '')).toLowerCase();
     const password = String(req.body.password || '');
-    const otp = String(req.body.otp || '');
-    if (!phone || !password || !otp) return res.status(400).json({ error: 'All fields required' });
+    
+    if (!email || !password) return res.status(400).json({ error: 'All fields required' });
+    
     const users = readJSON(USERS_FILE);
-    const user = users.find(u => u.phone === phone);
+    const user = users.find(u => u.email === email);
+    
     if (!user || !(await bcrypt.compare(password, user.password))) {
         return res.status(401).json({ error: 'Invalid credentials' });  // same message for security
     }
-    if (!verifyOTP(phone, otp)) return res.status(401).json({ error: 'Invalid or expired OTP' });
-    const token = jwt.sign({ id: user.id, phone: user.phone }, SECRET_KEY, { expiresIn: '7d' });
-    res.json({ token, user: { id: user.id, name: user.name, phone: user.phone } });
+    
+    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '7d' });
+    res.json({ token, user: { id: user.id, email: user.email } });
 });
 
 // =========================================

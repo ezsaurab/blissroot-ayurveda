@@ -116,134 +116,146 @@ document.head.appendChild(authStyles);
 
 // Inject Auth Modal HTML
 const authModalHTML = `
+
 <div class="auth-modal-overlay" id="authModal">
-  <div style="position:relative; width: 100%; max-width: 400px;">
-    <button class="auth-close" id="authClose">&times;</button>
-    <div class="auth-modal">
-      <div class="auth-header">
-        <div class="auth-tab active" data-tab="login">Login</div>
-        <div class="auth-tab" data-tab="signup">Sign Up</div>
-      </div>
-      <div class="auth-body">
-        <!-- Login Form -->
-        <form class="auth-form active" id="loginForm">
-          <h2>Welcome Back</h2>
-          <div class="auth-error" id="loginError"></div>
-          <div class="auth-success" id="loginSuccess"></div>
-          
-          <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <input type="tel" id="loginPhone" class="auth-input" style="margin-bottom:0;" placeholder="10-digit Phone Number" required>
-            <button type="button" class="auth-btn-outline" onclick="sendOTP('loginPhone', 'loginError', 'loginSuccess')">Get OTP</button>
-          </div>
-          <input type="password" id="loginPassword" class="auth-input" placeholder="Password" required>
-          <input type="text" id="loginOtp" class="auth-input" placeholder="6-digit OTP" required>
-          
-          <button type="submit" class="auth-btn">Login to Continue</button>
-        </form>
+  <div class="auth-modal">
+    <button class="auth-close" id="authClose">&lt;</button>
+    <div class="auth-title">Blissroot Ayurveda</div>
+    
+    <!-- Login Form -->
+    <div class="auth-form-container active" id="loginFormContainer">
+      <div class="auth-form-title">Login Now To Your Account.</div>
+      <div class="auth-form-subtitle">Access your account to manage settings, explore features</div>
+      
+      <div class="auth-error" id="loginError"></div>
+      
+      <form id="loginForm">
+        <div class="auth-input-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" class="auth-input" placeholder="jamesschleifer@gmail.com" required>
+        </div>
+        <div class="auth-input-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" class="auth-input" placeholder="•••••••••" required>
+          <span class="auth-eye" onclick="togglePassword('loginPassword', this)">👁️</span>
+        </div>
         
-        <!-- Signup Form -->
-        <form class="auth-form" id="signupForm">
-          <h2>Create Account</h2>
-          <div class="auth-error" id="signupError"></div>
-          <div class="auth-success" id="signupSuccess"></div>
-          
-          <input type="text" id="signupName" class="auth-input" placeholder="Full Name" required>
-          <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <input type="tel" id="signupPhone" class="auth-input" style="margin-bottom:0;" placeholder="10-digit Phone Number" required>
-            <button type="button" class="auth-btn-outline" onclick="sendOTP('signupPhone', 'signupError', 'signupSuccess')">Get OTP</button>
-          </div>
-          <input type="password" id="signupPassword" class="auth-input" placeholder="Password" required>
-          <input type="text" id="signupOtp" class="auth-input" placeholder="6-digit OTP" required>
-          
-          <button type="submit" class="auth-btn">Sign Up to Continue</button>
-        </form>
+        <div class="auth-options">
+          <label><input type="checkbox"> Remember me</label>
+          <a href="#" class="auth-forgot">Forgot password?</a>
+        </div>
+        
+        <button type="submit" class="auth-btn">Login</button>
+      </form>
+      
+      <div class="auth-or">OR</div>
+      
+      <button class="social-btn" type="button" onclick="alert('Google login coming soon!')">
+        <i class="fab fa-google"></i> Sign in with Google
+      </button>
+      <button class="social-btn" type="button" onclick="alert('Apple login coming soon!')">
+        <i class="fab fa-apple"></i> Continue with Apple
+      </button>
+      
+      <div class="auth-switch">
+        Don't have an account? <span onclick="switchAuthTab('signup')">Sign Up</span>
+      </div>
+    </div>
+    
+    <!-- Signup Form -->
+    <div class="auth-form-container" id="signupFormContainer">
+      <div class="auth-form-title">Sign Up To Your Account.</div>
+      <div class="auth-form-subtitle">Create an account to join the Blissroot family</div>
+      
+      <div class="auth-error" id="signupError"></div>
+      
+      <form id="signupForm">
+        <div class="auth-input-group">
+          <label>Email</label>
+          <input type="email" id="signupEmail" class="auth-input" placeholder="jamesschleifer@gmail.com" required>
+        </div>
+        <div class="auth-input-group">
+          <label>Password</label>
+          <input type="password" id="signupPassword" class="auth-input" placeholder="•••••••••" required minlength="6">
+          <span class="auth-eye" onclick="togglePassword('signupPassword', this)">👁️</span>
+        </div>
+        <div class="auth-input-group">
+          <label>Confirm Password</label>
+          <input type="password" id="signupConfirmPassword" class="auth-input" placeholder="•••••••••" required minlength="6">
+          <span class="auth-eye" onclick="togglePassword('signupConfirmPassword', this)">👁️</span>
+        </div>
+        
+        <button type="submit" class="auth-btn">Sign UP</button>
+      </form>
+      
+      <div class="auth-or">OR</div>
+      
+      <button class="social-btn" type="button" onclick="alert('Google login coming soon!')">
+        <i class="fab fa-google"></i> Sign in with Google
+      </button>
+      <button class="social-btn" type="button" onclick="alert('Apple login coming soon!')">
+        <i class="fab fa-apple"></i> Continue with Apple
+      </button>
+      
+      <div class="auth-switch">
+        Already have an account? <span onclick="switchAuthTab('login')">Login</span>
       </div>
     </div>
   </div>
 </div>
+
 `;
 document.body.insertAdjacentHTML('beforeend', authModalHTML);
 
+
 // Auth Modal Logic
 const authModal = document.getElementById('authModal');
-const authTabs = document.querySelectorAll('.auth-tab');
-const authForms = document.querySelectorAll('.auth-form');
-let pendingCartItem = null; // Stores item to add after login
+const authClose = document.getElementById('authClose');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const loginError = document.getElementById('loginError');
+const signupError = document.getElementById('signupError');
 
-document.getElementById('authClose').addEventListener('click', () => {
+authClose.addEventListener('click', () => {
     authModal.classList.remove('active');
 });
 
-authTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        authTabs.forEach(t => t.classList.remove('active'));
-        authForms.forEach(f => f.classList.remove('active'));
-        tab.classList.add('active');
-        const targetForm = tab.getAttribute('data-tab') + 'Form';
-        document.getElementById(targetForm).classList.add('active');
-        
-        // Hide messages when switching tabs
-        document.getElementById('loginError').style.display = 'none';
-        document.getElementById('loginSuccess').style.display = 'none';
-        document.getElementById('signupError').style.display = 'none';
-        document.getElementById('signupSuccess').style.display = 'none';
-    });
+authModal.addEventListener('click', (e) => {
+    if (e.target === authModal) {
+        authModal.classList.remove('active');
+    }
 });
 
-window.sendOTP = async function(phoneFieldId, errorFieldId, successFieldId) {
-    const phone = document.getElementById(phoneFieldId).value;
-    const errorEl = document.getElementById(errorFieldId);
-    const successEl = document.getElementById(successFieldId);
-    
-    errorEl.style.display = 'none';
-    successEl.style.display = 'none';
-    
-    if (!phone) {
-        errorEl.textContent = 'Please enter your phone number first';
-        errorEl.style.display = 'block';
-        return;
-    }
-    
-    try {
-        const res = await fetch('/api/send-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone })
-        });
-        const data = await res.json();
-        
-        if (res.ok) {
-            successEl.textContent = 'OTP sent to ' + phone + '!';
-            successEl.style.display = 'block';
-            if (data.otp) {
-                // Show OTP on screen for testing purposes
-                alert('TEST MODE: Your OTP is ' + data.otp);
-            }
-        } else {
-            throw new Error(data.error || 'Failed to send OTP');
-        }
-    } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
+window.switchAuthTab = function(tab) {
+    document.getElementById('loginFormContainer').classList.remove('active');
+    document.getElementById('signupFormContainer').classList.remove('active');
+    document.getElementById(tab + 'FormContainer').classList.add('active');
+    loginError.style.display = 'none';
+    signupError.style.display = 'none';
+};
+
+window.togglePassword = function(id, el) {
+    const input = document.getElementById(id);
+    if (input.type === 'password') {
+        input.type = 'text';
+        el.style.color = '#c8a97e';
+    } else {
+        input.type = 'password';
+        el.style.color = '#999';
     }
 };
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const errorEl = document.getElementById('loginError');
-    const successEl = document.getElementById('loginSuccess');
-    errorEl.style.display = 'none';
-    successEl.style.display = 'none';
+    loginError.style.display = 'none';
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
     
     try {
         const res = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                phone: document.getElementById('loginPhone').value,
-                password: document.getElementById('loginPassword').value,
-                otp: document.getElementById('loginOtp').value
-            })
+            body: JSON.stringify({ email, password })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Login failed');
@@ -256,30 +268,33 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         if (pendingCartItem) {
             proceedToCart(pendingCartItem);
             pendingCartItem = null;
+        } else {
+            window.location.reload();
         }
     } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
+        loginError.textContent = err.message;
+        loginError.style.display = 'block';
     }
 });
 
-document.getElementById('signupForm').addEventListener('submit', async (e) => {
+signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const errorEl = document.getElementById('signupError');
-    const successEl = document.getElementById('signupSuccess');
-    errorEl.style.display = 'none';
-    successEl.style.display = 'none';
+    signupError.style.display = 'none';
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('signupConfirmPassword').value;
+    
+    if (password !== confirmPassword) {
+        signupError.textContent = "Passwords do not match";
+        signupError.style.display = 'block';
+        return;
+    }
     
     try {
         const res = await fetch('/api/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: document.getElementById('signupName').value,
-                phone: document.getElementById('signupPhone').value,
-                password: document.getElementById('signupPassword').value,
-                otp: document.getElementById('signupOtp').value
-            })
+            body: JSON.stringify({ email, password })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Signup failed');
@@ -292,13 +307,14 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         if (pendingCartItem) {
             proceedToCart(pendingCartItem);
             pendingCartItem = null;
+        } else {
+            window.location.reload();
         }
     } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.style.display = 'block';
+        signupError.textContent = err.message;
+        signupError.style.display = 'block';
     }
 });
-
 window.openAuthModal = () => {
     authModal.classList.add('active');
 };
@@ -331,8 +347,8 @@ function updateNavAuth() {
     const token = localStorage.getItem('token');
     if (token) {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const firstName = user.name ? user.name.split(' ')[0] : 'User';
-        const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : 'U';
+        const firstName = user.email ? user.email.split('@')[0] : (user.name ? user.name.split(' ')[0] : 'User');
+        const initials = firstName.slice(0,2).toUpperCase();
         authBtn.className = 'nav-auth-btn logged-in';
         authBtn.innerHTML = '<span class="nav-auth-avatar">' + initials + '</span><span class="nav-auth-name">' + firstName + '</span><span class="nav-auth-logout">✕</span>';
         authBtn.title = 'Click to logout';
