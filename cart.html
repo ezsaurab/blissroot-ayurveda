@@ -355,21 +355,4 @@
                 rzp1.on('payment.failed', function (response){
                     alert("Payment Failed. Reason: " + response.error.description);
                 });
-                rzp1.open();
-                
-            } catch (err) {
-                console.error(err);
-                alert('Error initializing payment gateway. Please try again.');
-            } finally {
-                 btn.textContent = 'Proceed to Checkout';
-                btn.disabled = false;
-            }
-        });
-        
-        renderCart();
-        updateCartCount();
-    </script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script type="module" src="/main.js"></script>
-</body>
-</html>
+                r

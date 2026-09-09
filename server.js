@@ -279,4 +279,116 @@ app.post('/api/signup', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     const phone = String(req.body.phone || '').trim().replace(/\D/g, '');
-    const
+    const password = String(req.body.password || '');
+    const otp = String(req.body.otp || '');
+    if (!phone || !password || !otp) return res.status(400).json({ error: 'All fields required' });
+    const users = readJSON(USERS_FILE);
+    const user = users.find(u => u.phone === phone);
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(401).json({ error: 'Invalid credentials' });  // same message for security
+    }
+    if (!verifyOTP(phone, otp)) return res.status(401).json({ error: 'Invalid or expired OTP' });
+    const token = jwt.sign({ id: user.id, phone: user.phone }, SECRET_KEY, { expiresIn: '7d' });
+    res.json({ token, user: { id: user.id, name: user.name, phone: user.phone } });
+});
+
+// =========================================
+//  ADMIN AUTH
+// =========================================
+app.post('/api/admin/login', (req, res) => {
+    const password = String(req.body.password || '');
+    if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid admin password' });
+    const token = jwt.sign({ isAdmin: true, role: 'admin' }, SECRET_KEY, { expiresIn: '8h' });
+    res.json({ token, user: { name: 'Admin', isAdmin: true } });
+});
+
+// =========================================
+//  RAZORPAY
+// =========================================
+let razorpay = null;
+if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET &&
+    !RAZORPAY_KEY_ID.includes('YOUR_KEY') && !RAZORPAY_KEY_SECRET.includes('YOUR_SECRET')) {
+    razorpay = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
+    console.log('Razorpay: live mode active');
+} else {
+    console.log('Razorpay: keys not configured — payment endpoints disabled');
+}
+
+app.get('/api/payment/config', (req, res) => res.json({ keyId: RAZORPAY_KEY_ID }));
+
+app.post('/api/create-order', async (req, res) => {
+    if (!razorpay) return res.status(503).json({ error: 'Payment gateway not configured' });
+    const amount = Math.round(Number(req.body.amount || 0) * 100);
+    if (!amount || amount < 100) return res.status(400).json({ error: 'Minimum order amount is INR 1' });
+    try {
+        const order = await razorpay.orders.create({ amount, currency: 'INR', receipt: 'BR_' + Date.now() });
+        res.json(order);
+    } catch (e) {
+        res.status(e.statusCode === 401 ? 401 : 500).json({ error: e.error?.description || 'Order creation failed' });
+    }
+});
+
+app.post('/api/verify-payment', (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({ success: false, message: 'Missing payment fields' });
+    }
+    if (!RAZORPAY_KEY_SECRET || RAZORPAY_KEY_SECRET.includes('YOUR_SECRET')) {
+        return res.status(503).json({ success: false, message: 'Payment gateway not configured' });
+    }
+    const expected = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`).digest('hex');
+    try {
+        const a = Buffer.from(razorpay_signature, 'hex');
+        const b = Buffer.from(expected, 'hex');
+        const valid = a.length === b.length && crypto.timingSafeEqual(a, b);
+        return valid
+            ? res.json({ success: true, message: 'Payment verified' })
+            : res.status(400).json({ success: false, message: 'Signature mismatch' });
+    } catch {
+        return res.status(400).json({ success: false, message: 'Invalid signature format' });
+    }
+});
+
+// =========================================
+//  SETTINGS API (Admin only)
+// =========================================
+app.get('/api/settings', verifyAdmin, (req, res) => res.json(readJSON(SETTINGS_FILE, {})));
+app.put('/api/settings', verifyAdmin, (req, res) => {
+    const settings = { ...readJSON(SETTINGS_FILE, {}), ...req.body };
+    writeJSON(SETTINGS_FILE, settings); res.json(settings);
+});
+
+// =========================================
+//  STATIC FILES
+// =========================================
+const distPath = path.join(__dirname, 'dist');
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+        if (req.path.startsWith('/api')) return res.status(404).json({ error: 'Not found' });
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+} else {
+    app.use(express.static(__dirname, { extensions: ['html'] }));
+    app.get('*', (req, res) => {
+        if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
+        res.sendFile(path.join(__dirname, 'index.html'));
+    });
+}
+
+// =========================================
+//  GLOBAL ERROR HANDLER
+// =========================================
+app.use((err, req, res, _next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+});
+
+// =========================================
+//  START
+// =========================================
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n🌿 Blissroot Ayurveda running on port ${PORT}\n`);
+});
