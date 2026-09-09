@@ -162,7 +162,7 @@
             if (countElem) countElem.textContent = count;
         }
 
-        function changeQty(index, delta) {
+        window.changeQty = function(index, delta) {
             const cart = getCart();
             if (cart[index]) {
                 cart[index].qty = (cart[index].qty || cart[index].quantity || 1) + delta;
@@ -171,13 +171,13 @@
                 }
                 saveCart(cart);
             }
-        }
+        };
 
-        function removeItem(index) {
+        window.removeItem = function(index) {
             const cart = getCart();
             cart.splice(index, 1);
             saveCart(cart);
-        }
+        };
 
         function renderCart() {
             const cart = getCart();
