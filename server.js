@@ -67,9 +67,6 @@ const otpLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 app.use('/api/admin/login', authLimiter);
-app.use('/api/login', authLimiter);
-app.use('/api/signup', authLimiter);
-app.use('/api/send-otp', otpLimiter);
 
 // =========================================
 //  CONFIG — All secrets from environment
@@ -243,45 +240,6 @@ app.put('/api/orders/:id', verifyAdmin, (req, res) => {
 //  OTP SYSTEM (Removed)
 // =========================================
 // OTP logic removed per new Email/Password only requirements
-
-// =========================================
-//  CUSTOMER AUTH (Email / Password)
-// =========================================
-app.post('/api/signup', async (req, res) => {
-    const email = sanitize(String(req.body.email || '')).toLowerCase();
-    const password = String(req.body.password || '');
-    
-    if (!email || !password) return res.status(400).json({ error: 'All fields required' });
-    if (!email.includes('@')) return res.status(400).json({ error: 'Invalid email address' });
-    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    
-    const users = readJSON(USERS_FILE);
-    if (users.some(u => u.email === email)) return res.status(409).json({ error: 'Account already exists' });
-    
-    const user = { id: Date.now(), email, password: await bcrypt.hash(password, 12) };
-    users.push(user); 
-    writeJSON(USERS_FILE, users);
-    
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '7d' });
-    res.status(201).json({ token, user: { id: user.id, email: user.email } });
-});
-
-app.post('/api/login', async (req, res) => {
-    const email = sanitize(String(req.body.email || '')).toLowerCase();
-    const password = String(req.body.password || '');
-    
-    if (!email || !password) return res.status(400).json({ error: 'All fields required' });
-    
-    const users = readJSON(USERS_FILE);
-    const user = users.find(u => u.email === email);
-    
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-        return res.status(401).json({ error: 'Invalid credentials' });  // same message for security
-    }
-    
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '7d' });
-    res.json({ token, user: { id: user.id, email: user.email } });
-});
 
 // =========================================
 //  ADMIN AUTH
