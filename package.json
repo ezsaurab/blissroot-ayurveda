@@ -7,7 +7,7 @@
     "start": "node server.js",
     "dev:backend": "node server.js",
     "dev:frontend": "vite",
-    "build": "vite build",
+    "build": "rm -rf node_modules/.vite && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
