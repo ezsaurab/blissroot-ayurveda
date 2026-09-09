@@ -268,28 +268,45 @@ app.get('/api/payment/config', (req, res) => {
     res.json({ keyId: RAZORPAY_KEY_ID });
 });
 
-app.post('/api/payment/create-order', async (req, res) => {
+app.post('/api/create-order', async (req, res) => {
     try {
         if (!razorpay) return res.status(503).json({ error: 'Razorpay is not configured yet' });
         const amount = Math.round(Number(req.body.amount || 0) * 100);
-        if (!amount) return res.status(400).json({ error: 'Valid amount is required' });
-        const order = await razorpay.orders.create({ amount, currency: 'INR', receipt: 'BR_' + Date.now() });
-        res.json(order);
+        if (!amount || amount < 100) return res.status(400).json({ error: 'Minimum amount must be at least ₹1 (100 paise)' });
+        
+        try {
+            const order = await razorpay.orders.create({ amount, currency: 'INR', receipt: 'BR_' + Date.now() });
+            res.json(order);
+        } catch (apiError) {
+            if (apiError.statusCode === 401) {
+                return res.status(401).json({ error: 'Razorpay Authentication Failed' });
+            }
+            throw apiError;
+        }
     } catch (error) {
         res.status(500).json({ error: error.message || 'Unable to create payment order' });
     }
 });
 
-app.post('/api/payment/verify', (req, res) => {
+app.post('/api/verify-payment', (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || RAZORPAY_KEY_SECRET.includes('YOUR_SECRET_HERE')) {
-        return res.status(400).json({ success: false, error: 'Invalid payment data' });
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({ success: false, message: 'Missing payment verification fields' });
     }
+    if (RAZORPAY_KEY_SECRET.includes('YOUR_SECRET_HERE')) {
+        return res.status(400).json({ success: false, error: 'Razorpay Secret Key is missing' });
+    }
+    
     const expected = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET)
         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
         .digest('hex');
+        
     const valid = expected === razorpay_signature;
-    res.status(valid ? 200 : 400).json({ success: valid });
+    if (valid) {
+        return res.status(200).json({ success: true, message: 'Payment verified successfully' });
+    } else {
+        return res.status(400).json({ success: false, message: 'Invalid signature' });
+    }
 });
 
 // ===== SETTINGS API =====

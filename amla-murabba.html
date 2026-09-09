@@ -141,4 +141,21 @@
                 let val = parseInt(qtyInput.value);
                 if (val > 1) qtyInput.value = val - 1;
             });
-            qtyPlus.addEventListener('click',
+            qtyPlus.addEventListener('click', () => {
+                let val = parseInt(qtyInput.value);
+                qtyInput.value = val + 1;
+            });
+        }
+
+        // Hamburger menu
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        if(hamburger && navLinks) {
+            hamburger.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        }
+    </script>
+<script type="module" src="/main.js"></script>
+</body>
+</html>

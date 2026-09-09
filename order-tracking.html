@@ -139,4 +139,19 @@
                 navLinks.style.padding = '20px';
                 navLinks.style.boxShadow = '0 5px 10px rgba(0,0,0,0.1)';
                 navLinks.style.zIndex = '10';
-          
+            }
+        });
+
+        // Initialize Cart count
+        function updateCartCount() {
+            const cartStr = localStorage.getItem('blissroot_cart');
+            const cart = cartStr ? JSON.parse(cartStr) : [];
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const countElem = document.querySelector('.cart-count');
+            if (countElem) countElem.textContent = count;
+        }
+        updateCartCount();
+    </script>
+<script type="module" src="/main.js"></script>
+</body>
+</html>

@@ -286,11 +286,11 @@
 
                 // 2. Open Razorpay Checkout Modal
                 // Fetch dynamic key from backend to avoid hardcoding
-                const configRes = await fetch('/api/config/razorpay');
+                const configRes = await fetch('/api/payment/config');
                 const config = await configRes.json();
                 
                 const options = {
-                    key: config.key_id, 
+                    key: config.keyId, 
                     amount: orderData.amount, 
                     currency: orderData.currency,
                     name: "Blissroot Ayurveda",
@@ -343,6 +343,11 @@
                     },
                     theme: {
                         color: "#1F3D2B"
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            console.log('Checkout modal closed by user');
+                        }
                     }
                 };
 
