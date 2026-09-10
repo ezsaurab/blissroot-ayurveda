@@ -2,7 +2,7 @@
 import { Clerk } from '@clerk/clerk-js';
 
 // --- CLERK AUTHENTICATION CONFIGURATION ---
-const CLERK_PUBLISHABLE_KEY = "pk_test_ZXRoaWNhbC1iYXNzLTYxNTQuY2xlcmsuYWNjb3VudHMuZGV2JA"; 
+const CLERK_PUBLISHABLE_KEY = "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA"; 
 
 window.Clerk = new Clerk(CLERK_PUBLISHABLE_KEY);
 
