@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { clerkMiddleware, requireAuth } from '@clerk/express';
+import { createClerkClient } from '@clerk/backend';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
