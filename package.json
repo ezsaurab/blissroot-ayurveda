@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@clerk/clerk-js": "^6.31.1",
+    "@clerk/express": "^2.1.67",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -22,6 +23,7 @@
     "razorpay": "^2.9.8"
   },
   "devDependencies": {
+    "puppeteer": "^25.10.0",
     "vite": "^6.0.0"
   }
 }

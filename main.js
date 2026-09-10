@@ -42,8 +42,21 @@ function updateNavAuth() {
     
     authContainer.innerHTML = '';
     
-    if (window.Clerk.user) {
+        if (window.Clerk.user) {
         window.Clerk.mountUserButton(authContainer);
+        
+        // --- ADMIN LINK ---
+        const email = window.Clerk.user.primaryEmailAddress?.emailAddress;
+        if (email === 'saurabhchauhansv@gmail.com') {
+            const adminBtn = document.createElement('a');
+            adminBtn.href = 'admin.html';
+            adminBtn.className = 'nav-btn';
+            adminBtn.style = 'background: #C9A84C; color: #fff; border: none; padding: 6px 14px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 5px;';
+            adminBtn.innerHTML = '⚙️ Admin';
+            authContainer.prepend(adminBtn);
+        }
+        // ------------------
+
         
         if (typeof pendingCartItem !== 'undefined' && pendingCartItem) {
             proceedToCart(pendingCartItem);
