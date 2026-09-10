@@ -1302,3 +1302,71 @@ ul { list-style: none; }
 ::-webkit-scrollbar-track { background: var(--cream); }
 ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gray-500); }
+
+/* ===== NAV AUTH BUTTON & CLERK STYLES ===== */
+.nav-auth-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #1F3D2B 0%, #29523a 100%);
+  color: #FFFFFF !important;
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(201, 168, 76, 0.55);
+  box-shadow: 0 2px 8px rgba(31, 61, 43, 0.18);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.nav-auth-btn:hover {
+  background: linear-gradient(135deg, #C9A84C 0%, #dfbf64 100%);
+  color: #1F3D2B !important;
+  border-color: #C9A84C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(201, 168, 76, 0.35);
+}
+
+.nav-auth-btn .auth-icon {
+  font-size: 1rem;
+}
+
+.nav-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #C9A84C;
+  color: #1F3D2B !important;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(201, 168, 76, 0.3);
+  transition: all 0.2s ease;
+}
+
+.nav-admin-badge:hover {
+  background: #1F3D2B;
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 650px) {
+  .nav-auth-btn .auth-text {
+    display: none;
+  }
+  .nav-auth-btn {
+    padding: 8px 12px;
+  }
+}
+

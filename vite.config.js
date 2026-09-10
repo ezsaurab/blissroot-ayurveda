@@ -12,7 +12,9 @@ export default defineConfig({
         orderTracking: resolve(__dirname, 'order-tracking.html'),
         chyawanprash: resolve(__dirname, 'chyawanprash.html'),
         amlaMurabba: resolve(__dirname, 'amla-murabba.html'),
-        herbalLipBalm: resolve(__dirname, 'herbal-lip-balm.html')
+        herbalLipBalm: resolve(__dirname, 'herbal-lip-balm.html'),
+        login: resolve(__dirname, 'login.html'),
+        signup: resolve(__dirname, 'signup.html')
       }
     }
   },

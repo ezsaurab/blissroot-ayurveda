@@ -31,8 +31,14 @@
       <a href="order-tracking.html">Track Order</a>
     </div>
     <div class="nav-actions">
-      <a href="cart.html" class="nav-btn">🛒<span class="cart-count" id="cartCount">0</span></a>
-      <button class="hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open');this.classList.toggle('open')">
+      <div id="navAuthContainer" class="nav-auth-container">
+        <a href="login.html" class="nav-auth-btn" id="navAuthBtn">
+          <span class="auth-icon">👤</span>
+          <span class="auth-text">Login / Sign Up</span>
+        </a>
+      </div>
+      <a href="cart.html" class="nav-btn" title="View Cart">🛒<span class="cart-count" id="cartCount">0</span></a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="document.getElementById('navLinks').classList.toggle('open');this.classList.toggle('open')">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -261,11 +267,12 @@
             const cart = getCart();
             if (cart.length === 0) return;
             
-            // Check if user is logged in
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert("Please log in first before checking out!");
-                return;
+            // Get customer info from Clerk if logged in
+            let customerName = 'Guest Customer';
+            let customerEmail = 'guest@blissroot.in';
+            if (window.Clerk && window.Clerk.user) {
+                customerName = window.Clerk.user.fullName || window.Clerk.user.firstName || 'Valued Customer';
+                customerEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 'customer@blissroot.in';
             }
 
             const btn = document.querySelector('.btn-checkout');
@@ -291,8 +298,8 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            customerName: user ? user.name : 'Guest',
-                            customerPhone: user ? user.phone : '',
+                            customerName: customerName,
+                            customerPhone: (window.Clerk?.user?.primaryPhoneNumber?.phoneNumber) || '',
                             items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty || i.quantity || 1 })),
                             subtotal, shipping, tax, total: window.cartTotalAmount,
                             paymentId: orderData.id || 'mock',

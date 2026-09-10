@@ -860,7 +860,7 @@
 
     async function fetchOrders() {
         try {
-            const res = await fetch('/api/admin/orders', {
+            const res = await fetch('/api/orders', {
                 headers: { 'Authorization': 'Bearer ' + adminToken }
             });
             if (res.status === 401 || res.status === 403) {
@@ -878,7 +878,7 @@
 
     async function updateOrderStatus(orderId, newStatus) {
         try {
-            const res = await fetch('/api/admin/orders/' + orderId, {
+            const res = await fetch('/api/orders/' + orderId, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

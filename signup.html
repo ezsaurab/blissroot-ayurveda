@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create an account with Blissroot Ayurveda - Pure, Traditional Ayurvedic Wellness.">
+  <title>Sign Up - Blissroot Ayurveda</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="canonical" href="https://www.blissrootayurveda.com/signup.html">
+  <style>
+    .auth-page-wrapper {
+      min-height: 75vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: linear-gradient(180deg, #F5F0E6 0%, #FFFFFF 100%);
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(31, 61, 43, 0.08);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      padding: 36px 28px;
+      text-align: center;
+    }
+    .auth-card-header {
+      margin-bottom: 24px;
+    }
+    .auth-card-header img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      border: 2px solid var(--gold);
+    }
+    .auth-card-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--deep-green);
+      margin-bottom: 6px;
+    }
+    .auth-card-header p {
+      color: var(--gray-600);
+      font-size: 0.9rem;
+    }
+    .auth-mount-container {
+      display: flex;
+      justify-content: center;
+      min-height: 380px;
+      width: 100%;
+    }
+    .auth-loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(31, 61, 43, 0.15);
+      border-radius: 50%;
+      border-top-color: var(--deep-green);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Announcement Bar -->
+<div class="announcement-bar">
+  🌿 Free Shipping on orders above <span>₹499</span> | Use code <span>AYUR10</span> for 10% off
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container">
+    <a href="/" class="logo">
+      <img src="/images/logo.jpg" alt="Blissroot Ayurveda" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+      Blissroot Ayurveda
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/#products">Products</a>
+      <a href="blog.html">Blog</a>
+      <a href="order-tracking.html">Track Order</a>
+    </div>
+    <div class="nav-actions">
+      <div id="navAuthContainer" class="nav-auth-container">
+        <a href="login.html" class="nav-auth-btn" id="navAuthBtn">
+          <span class="auth-icon">👤</span>
+          <span class="auth-text">Login / Sign Up</span>
+        </a>
+      </div>
+      <a href="cart.html" class="nav-btn" title="View Cart">🛒<span class="cart-count" id="cartCount">0</span></a>
+      <button class="hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open');this.classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Auth Content -->
+<div class="auth-page-wrapper">
+  <div class="auth-card">
+    <div class="auth-card-header">
+      <img src="/images/logo.jpg" alt="Blissroot Ayurveda">
+      <h1>Create Your Account</h1>
+      <p>Join Blissroot Ayurveda for pure holistic wellness and fast checkout.</p>
+    </div>
+
+    <div class="auth-mount-container">
+      <div id="auth-loading" style="padding: 40px 0;">
+        <div class="auth-loading-spinner"></div>
+        <p style="margin-top: 14px; font-weight: 500; color: var(--deep-green); font-size: 0.95rem;">Loading registration...</p>
+      </div>
+      <div id="clerk-sign-up" style="width: 100%; display: flex; justify-content: center;"></div>
+    </div>
+
+    <div style="margin-top: 24px; font-size: 0.88rem; color: var(--gray-600); border-top: 1px solid var(--gray-200); padding-top: 18px;">
+      Already have an account? <a href="login.html" style="color: var(--deep-green); font-weight: 600; text-decoration: underline;">Sign In here</a>
+      <div style="margin-top: 12px;">
+        <a href="/" style="color: var(--gray-500); text-decoration: none;">← Return to Store</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <img src="/images/logo.jpg" alt="Blissroot Ayurveda" style="width:40px;height:40px;border-radius:50%;object-fit:cover;filter:brightness(10);">
+          Blissroot Ayurveda
+        </div>
+        <p>Bringing the ancient wisdom of Ayurveda to your doorstep. All our products are 100% natural, lab tested and FSSAI certified.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <a href="/">Home</a>
+        <a href="/#products">Products</a>
+        <a href="blog.html">Blog</a>
+        <a href="order-tracking.html">Track Order</a>
+      </div>
+      <div class="footer-col">
+        <h4>Products</h4>
+        <a href="chyawanprash.html">Chyawanprash</a>
+        <a href="amla-murabba.html">Amla Murabba</a>
+        <a href="herbal-lip-balm.html">Herbal Lip Balm</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="#">Shipping Policy</a>
+        <a href="#">Return Policy</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Blissroot Ayurveda. All rights reserved. FSSAI Lic: 12345678901234</span>
+    </div>
+  </div>
+</footer>
+
+<script type="module">
+  import { Clerk } from '@clerk/clerk-js';
+  const CLERK_PUBLISHABLE_KEY = "pk_test_ZXRoaWNhbC1iYXNzLTYxNTQuY2xlcmsuYWNjb3VudHMuZGV2JA";
+  const clerk = new Clerk(CLERK_PUBLISHABLE_KEY);
+  window.Clerk = clerk;
+
+  (async () => {
+    try {
+      await clerk.load();
+      const loadingEl = document.getElementById('auth-loading');
+      if (loadingEl) loadingEl.remove();
+
+      if (clerk.user) {
+        window.location.href = '/';
+      } else {
+        clerk.mountSignUp(document.getElementById('clerk-sign-up'), {
+          signInUrl: '/login.html',
+          afterSignUpUrl: '/'
+        });
+      }
+    } catch (err) {
+      console.error("Clerk mount error:", err);
+      const loadingEl = document.getElementById('auth-loading');
+      if (loadingEl) {
+        loadingEl.innerHTML = `
+          <div style="color: #e53935; padding: 20px;">
+            <p style="font-weight: 600;">Unable to connect to Clerk Authentication.</p>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 6px;">Please check your connection or try again.</p>
+            <a href="/" class="btn-primary" style="margin-top: 14px; display: inline-block;">Return Home</a>
+          </div>
+        `;
+      }
+    }
+  })();
+</script>
+<script type="module" src="/main.js"></script>
+</body>
+</html>

@@ -209,7 +209,7 @@ app.delete('/api/products/:id', verifyAdmin, (req, res) => {
 // =========================================
 //  ORDERS API
 // =========================================
-app.get('/api/orders', verifyAdmin, (req, res) => {
+app.get(['/api/orders', '/api/admin/orders'], verifyAdmin, (req, res) => {
     res.json(readJSON(ORDERS_FILE).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
 });
 
@@ -243,7 +243,7 @@ app.get('/api/orders/:orderNumber', (req, res) => {
     order ? res.json(order) : res.status(404).json({ error: 'Order not found' });
 });
 
-app.put('/api/orders/:id', verifyAdmin, (req, res) => {
+app.put(['/api/orders/:id', '/api/admin/orders/:id'], verifyAdmin, (req, res) => {
     const orders = readJSON(ORDERS_FILE);
     const index = orders.findIndex(o => String(o.id) === String(req.params.id));
     if (index === -1) return res.status(404).json({ error: 'Order not found' });

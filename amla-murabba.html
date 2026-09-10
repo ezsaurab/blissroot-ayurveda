@@ -29,8 +29,14 @@
       <a href="order-tracking.html">Track Order</a>
     </div>
     <div class="nav-actions">
-      <a href="cart.html" class="nav-btn">🛒<span class="cart-count" id="cartCount">0</span></a>
-      <button class="hamburger" id="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open');this.classList.toggle('open')">
+      <div id="navAuthContainer" class="nav-auth-container">
+        <a href="login.html" class="nav-auth-btn" id="navAuthBtn">
+          <span class="auth-icon">👤</span>
+          <span class="auth-text">Login / Sign Up</span>
+        </a>
+      </div>
+      <a href="cart.html" class="nav-btn" title="View Cart">🛒<span class="cart-count" id="cartCount">0</span></a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="document.getElementById('navLinks').classList.toggle('open');this.classList.toggle('open')">
         <span></span><span></span><span></span>
       </button>
     </div>
