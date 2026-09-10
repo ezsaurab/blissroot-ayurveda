@@ -15,8 +15,11 @@ import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// Hardcode test keys so the app doesn't crash on Render if the user forgot to configure Environment Variables
+process.env.CLERK_PUBLISHABLE_KEY = process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZXRoaWNhbC1iYXNzLTYxNTQuY2xlcmsuYWNjb3VudHMuZGV2JA";
+process.env.CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || "sk_test_s2g6i3umjBuP5nDwufzqEPzgu0paru7s7K7qqPCZk8";
+
 const app = express();
-app.use(clerkMiddleware());
 
 // =========================================
 //  SECURITY HEADERS (Helmet)
