@@ -17,7 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Hardcode test keys so the app doesn't crash on Render if the user forgot to configure Environment Variables
 process.env.CLERK_PUBLISHABLE_KEY = process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
-process.env.CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || "sk_test_s2g6i3umjBuP5nDwufzqEPzgu0paru7s7K7qqPCZk8";
+process.env.CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || "sk_test_SUMwSQO6BPbVJYQWmigLYQ5xVxqUW3Dub9AcMn1hyn";
 
 const app = express();
 
@@ -167,10 +167,10 @@ function verifyToken(req, res, next) {
     catch { return res.status(401).json({ error: 'Invalid or expired token' }); }
 }
 
-const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY || "sk_test_s2g6i3umjBuP5nDwufzqEPzgu0paru7s7K7qqPCZk8", publishableKey: process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA" });
+const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY || "sk_test_SUMwSQO6BPbVJYQWmigLYQ5xVxqUW3Dub9AcMn1hyn", publishableKey: process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA" });
 
 const verifyAdmin = [
-    clerkMiddleware({ secretKey: process.env.CLERK_SECRET_KEY || "sk_test_s2g6i3umjBuP5nDwufzqEPzgu0paru7s7K7qqPCZk8", publishableKey: process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA" }),
+    clerkMiddleware({ secretKey: process.env.CLERK_SECRET_KEY || "sk_test_SUMwSQO6BPbVJYQWmigLYQ5xVxqUW3Dub9AcMn1hyn", publishableKey: process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA" }),
     requireAuth(),
     async (req, res, next) => {
         try {

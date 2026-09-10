@@ -188,14 +188,32 @@
     } catch (err) {
       console.error("Clerk mount error:", err);
       const loadingEl = document.getElementById('auth-loading');
+      const msg = err?.message || String(err);
       if (loadingEl) {
-        loadingEl.innerHTML = `
-          <div style="color: #e53935; padding: 20px;">
-            <p style="font-weight: 600;">Unable to connect to Clerk Authentication.</p>
-            <p style="font-size: 0.85rem; color: #666; margin-top: 6px;">${err?.message || err}</p>
-            <a href="/" class="btn-primary" style="margin-top: 14px; display: inline-block;">Return Home</a>
-          </div>
-        `;
+        if (msg.includes("dev_browser_unauthenticated") || msg.includes("development instance") || msg.includes("cookies")) {
+          loadingEl.innerHTML = `
+            <div style="background: #fff8e1; border: 1px solid #ffe082; border-radius: 12px; padding: 22px 18px; text-align: center;">
+              <h3 style="color: #b78103; font-size: 1.1rem; margin-bottom: 8px;">🔑 Development Mode Notice</h3>
+              <p style="font-size: 0.88rem; color: #444; line-height: 1.5; margin-bottom: 14px;">
+                You are using a Clerk <b>Development Key</b> (<code>pk_test_</code>) on a live domain. Modern browsers require you to authenticate your development browser session.
+              </p>
+              <a href="https://engaging-boa-5530.clerk.accounts.dev" target="_blank" class="btn-primary" style="display: inline-block; padding: 10px 22px; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 0.9rem;">
+                Click to Authenticate Dev Session ↗
+              </a>
+              <p style="font-size: 0.8rem; color: #777; margin-top: 14px;">
+                After clicking above, refresh this page! Or in your Clerk Dashboard, switch to <b>Production</b> to enable it for everyone.
+              </p>
+            </div>
+          `;
+        } else {
+          loadingEl.innerHTML = `
+            <div style="color: #e53935; padding: 20px;">
+              <p style="font-weight: 600;">Unable to connect to Clerk Authentication.</p>
+              <p style="font-size: 0.85rem; color: #666; margin-top: 6px;">${msg}</p>
+              <a href="/" class="btn-primary" style="margin-top: 14px; display: inline-block;">Return Home</a>
+            </div>
+          `;
+        }
       }
     }
   })();
