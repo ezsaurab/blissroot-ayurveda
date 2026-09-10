@@ -168,12 +168,19 @@
 <script type="module">
   import { Clerk } from '@clerk/clerk-js';
   const CLERK_PUBLISHABLE_KEY = "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
-  const clerk = new Clerk(CLERK_PUBLISHABLE_KEY);
+  
+  const isSatellite = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+  const clerk = new Clerk(CLERK_PUBLISHABLE_KEY, {
+    domain: isSatellite ? window.location.origin : undefined
+  });
   window.Clerk = clerk;
 
   (async () => {
     try {
-      await clerk.load();
+      await clerk.load({
+        isSatellite: isSatellite
+      });
       const loadingEl = document.getElementById('auth-loading');
       if (loadingEl) loadingEl.remove();
 

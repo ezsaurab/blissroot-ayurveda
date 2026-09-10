@@ -4,11 +4,17 @@ import { Clerk } from '@clerk/clerk-js';
 // --- CLERK AUTHENTICATION CONFIGURATION ---
 const CLERK_PUBLISHABLE_KEY = "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA"; 
 
-window.Clerk = new Clerk(CLERK_PUBLISHABLE_KEY);
+const isSatellite = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+window.Clerk = new Clerk(CLERK_PUBLISHABLE_KEY, {
+    domain: isSatellite ? window.location.origin : undefined
+});
 
 (async () => {
     try {
-        await window.Clerk.load();
+        await window.Clerk.load({
+            isSatellite: isSatellite
+        });
         updateNavAuth();
         window.Clerk.addListener(() => {
             updateNavAuth();
