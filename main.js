@@ -5,18 +5,20 @@
 // --- CLERK AUTHENTICATION ---
 import { Clerk } from '@clerk/clerk-js';
 
-const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-if (!CLERK_PUBLISHABLE_KEY) {
-    console.error("Missing VITE_CLERK_PUBLISHABLE_KEY in .env");
-}
+// Hardcoding the Publishable Key so it works automatically on Render without requiring the user to configure Env Vars
+const CLERK_PUBLISHABLE_KEY = "pk_test_ZXRoaWNhbC1iYXNzLTYxNTQuY2xlcmsuYWNjb3VudHMuZGV2JA"; 
 
 window.Clerk = new Clerk(CLERK_PUBLISHABLE_KEY);
 
 (async () => {
-  await window.Clerk.load();
-  updateNavAuth();
+    try {
+        await window.Clerk.load();
+        updateNavAuth();
+    } catch(e) {
+        console.error("Failed to load Clerk", e);
+    }
 })();
+
 
 function updateNavAuth() {
     const navActions = document.querySelector('.nav-actions');
