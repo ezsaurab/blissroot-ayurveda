@@ -3,24 +3,20 @@
 // --- AUTHENTICATION MODAL & LOGIC ---
 
 // --- CLERK AUTHENTICATION ---
-const CLERK_PUBLISHABLE_KEY = "pk_test_Y2xlcmsuYmxpc3Nyb290LmF5dXJ2ZWRhLmNvbSQ"; // placeholder
-const clerkScript = document.createElement('script');
-clerkScript.setAttribute('data-clerk-publishable-key', CLERK_PUBLISHABLE_KEY);
-clerkScript.async = true;
-clerkScript.src = "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
-clerkScript.crossOrigin = "anonymous";
-document.head.appendChild(clerkScript);
+import { Clerk } from '@clerk/clerk-js';
 
-let clerkLoaded = false;
-clerkScript.onload = async () => {
-    try {
-        await window.Clerk.load();
-        clerkLoaded = true;
-        updateNavAuth();
-    } catch (err) {
-        console.error("Error loading Clerk: ", err);
-    }
-};
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_PUBLISHABLE_KEY) {
+    console.error("Missing VITE_CLERK_PUBLISHABLE_KEY in .env");
+}
+
+window.Clerk = new Clerk(CLERK_PUBLISHABLE_KEY);
+
+(async () => {
+  await window.Clerk.load();
+  updateNavAuth();
+})();
 
 function updateNavAuth() {
     const navActions = document.querySelector('.nav-actions');
@@ -61,13 +57,14 @@ function updateNavAuth() {
     }
 }
 
-window.addEventListener('load', () => {
-    if (window.Clerk && window.Clerk.isReady) {
-        window.Clerk.addListener(({ user }) => {
-            updateNavAuth();
-        });
-    }
-});
+
+// Set up listener for auth state changes
+if (window.Clerk) {
+    window.Clerk.addListener(({ user }) => {
+        updateNavAuth();
+    });
+}
+
 
 let pendingCartItem = null;
 
