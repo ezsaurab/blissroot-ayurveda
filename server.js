@@ -126,15 +126,25 @@ function verifyToken(req, res, next) {
     catch { return res.status(401).json({ error: 'Invalid or expired token' }); }
 }
 
-function verifyAdmin(req, res, next) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'No token provided' });
-    try {
-        const decoded = jwt.verify(authHeader.split(' ')[1], SECRET_KEY);
-        if (!decoded.isAdmin) return res.status(403).json({ error: 'Admin access required' });
-        req.user = decoded; next();
-    } catch { return res.status(401).json({ error: 'Invalid or expired token' }); }
-}
+const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY || "sk_test_s2g6i3umjBuP5nDwufzqEPzgu0paru7s7K7qqPCZk8", publishableKey: process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZXRoaWNhbC1iYXNzLTYxNTQuY2xlcmsuYWNjb3VudHMuZGV2JA" });
+
+const verifyAdmin = [
+    clerkMiddleware({ secretKey: process.env.CLERK_SECRET_KEY || "sk_test_s2g6i3umjBuP5nDwufzqEPzgu0paru7s7K7qqPCZk8", publishableKey: process.env.CLERK_PUBLISHABLE_KEY || "pk_test_ZXRoaWNhbC1iYXNzLTYxNTQuY2xlcmsuYWNjb3VudHMuZGV2JA" }),
+    requireAuth(),
+    async (req, res, next) => {
+        try {
+            const user = await clerkClient.users.getUser(req.auth.userId);
+            const email = user.emailAddresses[0]?.emailAddress;
+            if (email === 'saurabhchauhansv@gmail.com') {
+                return next();
+            }
+            res.status(403).json({ error: 'Forbidden: Admin access only' });
+        } catch (error) {
+            console.error("Clerk verifyAdmin error:", error);
+            res.status(401).json({ error: 'Invalid token or user not found' });
+        }
+    }
+];
 
 // =========================================
 //  PRODUCTS API
@@ -248,14 +258,7 @@ app.put('/api/orders/:id', verifyAdmin, (req, res) => {
 // OTP logic removed per new Email/Password only requirements
 
 // =========================================
-//  ADMIN AUTH
-// =========================================
-app.post('/api/admin/login', (req, res) => {
-    const password = String(req.body.password || '');
-    if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid admin password' });
-    const token = jwt.sign({ isAdmin: true, role: 'admin' }, SECRET_KEY, { expiresIn: '8h' });
-    res.json({ token, user: { name: 'Admin', isAdmin: true } });
-});
+// ADMIN AUTH handled by Clerk Frontend
 
 // =========================================
 //  RAZORPAY
