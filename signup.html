@@ -192,7 +192,7 @@
         loadingEl.innerHTML = `
           <div style="color: #e53935; padding: 20px;">
             <p style="font-weight: 600;">Unable to connect to Clerk Authentication.</p>
-            <p style="font-size: 0.85rem; color: #666; margin-top: 6px;">Please check your connection or try again.</p>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 6px;">${err?.message || err}</p>
             <a href="/" class="btn-primary" style="margin-top: 14px; display: inline-block;">Return Home</a>
           </div>
         `;

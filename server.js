@@ -28,12 +28,53 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://cdnjs.cloudflare.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"],
-            frameSrc: ["https://api.razorpay.com"],
+            scriptSrc: [
+                "'self'", 
+                "'unsafe-inline'", 
+                "'unsafe-eval'",
+                "https://*.clerk.accounts.dev", 
+                "https://*.clerk.com", 
+                "https://clerk.blissrootayurveda.com",
+                "https://checkout.razorpay.com", 
+                "https://cdnjs.cloudflare.com",
+                "https://challenges.cloudflare.com"
+            ],
+            styleSrc: [
+                "'self'", 
+                "'unsafe-inline'", 
+                "https://cdnjs.cloudflare.com", 
+                "https://fonts.googleapis.com",
+                "https://*.clerk.accounts.dev"
+            ],
+            fontSrc: [
+                "'self'", 
+                "data:",
+                "https://cdnjs.cloudflare.com", 
+                "https://fonts.gstatic.com"
+            ],
+            imgSrc: [
+                "'self'", 
+                "data:", 
+                "https:", 
+                "https://img.clerk.com", 
+                "https://images.clerk.dev"
+            ],
+            connectSrc: [
+                "'self'", 
+                "https://*.clerk.accounts.dev", 
+                "https://*.clerk.com", 
+                "https://clerk.blissrootayurveda.com",
+                "https://api.razorpay.com", 
+                "https://lumberjack.razorpay.com"
+            ],
+            frameSrc: [
+                "'self'",
+                "https://*.clerk.accounts.dev",
+                "https://*.clerk.com",
+                "https://api.razorpay.com", 
+                "https://challenges.cloudflare.com"
+            ],
+            workerSrc: ["'self'", "blob:"],
             objectSrc: ["'none'"],
             upgradeInsecureRequests: []
         }
