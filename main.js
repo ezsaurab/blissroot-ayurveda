@@ -98,7 +98,7 @@ function addToCart(arg1, arg2, arg3) {
   }
 
   
-    if (!window.Clerk || !window.Clerk.isReady) {
+    if (!window.Clerk || !window.Clerk.loaded) {
         if(window.showToast) window.showToast('Authentication is still loading. Please wait...', 'info');
         return;
     }
