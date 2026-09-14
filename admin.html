@@ -824,37 +824,40 @@
     <div id="toast-container"></div>
 
     <script type="module">
-    import { Clerk } from '@clerk/clerk-js';
-    const CLERK_PUBLISHABLE_KEY = "pk_test_ZW5nYWdpbmctYm9hLTU1MzAuY2xlcmsuYWNjb3VudHMuZGV2JA"; 
-    
-    const isSatellite = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-
-    window.Clerk = new Clerk(CLERK_PUBLISHABLE_KEY, {
-      domain: isSatellite ? window.location.origin : undefined
-    });
+    import { getLoadedClerk } from '/main.js';
 
     let adminToken = null;
 
     async function initAdmin() {
-        await window.Clerk.load({
-          isSatellite: isSatellite
-        });
+        try {
+            const clerk = await getLoadedClerk();
 
-        if (window.Clerk.user) {
-            const email = window.Clerk.user.primaryEmailAddress?.emailAddress;
-            if (email === 'saurabhchauhansv@gmail.com') {
-                // User is Admin!
-                document.getElementById('login-view').style.display = 'none';
-                document.getElementById('dashboard-view').style.display = 'block';
-                adminToken = await window.Clerk.session.getToken();
-                fetchOrders();
+            if (clerk.user) {
+                const email = clerk.user.primaryEmailAddress?.emailAddress;
+                if (email === 'saurabhchauhansv@gmail.com') {
+                    // User is Admin!
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('dashboard-view').style.display = 'block';
+                    adminToken = await clerk.session.getToken();
+                    fetchOrders();
+                } else {
+                    // Logged in, but not an admin
+                    document.querySelector('.login-card').innerHTML = "<h2>Access Denied</h2><p>You do not have administrator privileges (" + (email || 'anonymous') + ").</p><a href='/' style='color: #1F3D2B; text-decoration: underline; display: inline-block; margin-top: 15px;'>Return to Website</a>";
+                }
             } else {
-                // Logged in, but not an admin
-                document.querySelector('.login-card').innerHTML = "<h2>Access Denied</h2><p>You do not have administrator privileges.</p><a href='/' style='color: #1F3D2B; text-decoration: underline;'>Return to Website</a>";
+                // Not logged in
+                const loginEl = document.getElementById('clerk-admin-login');
+                if (loginEl) {
+                    loginEl.innerHTML = '';
+                    clerk.mountSignIn(loginEl);
+                }
             }
-        } else {
-            // Not logged in
-            window.Clerk.mountSignIn(document.getElementById('clerk-admin-login'));
+        } catch (err) {
+            console.error("Admin Clerk init error:", err);
+            const loginEl = document.getElementById('clerk-admin-login');
+            if (loginEl) {
+                loginEl.innerHTML = `<p style="color:red;">Error loading authentication: ${err.message || err}</p>`;
+            }
         }
     }
 
