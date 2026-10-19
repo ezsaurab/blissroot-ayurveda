@@ -1,0 +1,27 @@
+
+name: Render Keep Alive
+
+on:
+  schedule:
+    - cron: "7,17,27,37,47,57 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Render website
+        env:
+          TARGET_URL: ${{ vars.TARGET_URL }}
+        run: |
+          if [ -z "$TARGET_URL" ]; then
+            echo "TARGET_URL is not configured"
+            exit 1
+          fi
+
+          curl -fsS -L \
+            --max-time 30 \
+            "$TARGET_URL" \
+            -o /dev/null
+
+          echo "Website responded successfully"
